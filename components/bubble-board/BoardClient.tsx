@@ -113,6 +113,17 @@ export function BoardClient({ initialTasks, initialSettings, boardId, boardName 
         />
       )}
 
+      {/* Floating Add Task button — bottom center */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30">
+        <button
+          onClick={() => setSelectedTask(null)}
+          className="h-12 px-6 rounded-full bg-[var(--color-upcoming)] text-sm font-semibold shadow-lg hover:opacity-90 transition-opacity flex items-center gap-2"
+        >
+          <span className="text-base font-bold leading-none">+</span>
+          Add task
+        </button>
+      </div>
+
       {/* Task modal */}
       {selectedTask !== undefined && (
         <TaskModal

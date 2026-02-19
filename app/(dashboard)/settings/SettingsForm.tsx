@@ -1,7 +1,8 @@
 'use client'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import type { Settings, CustomUrgencyColors, UrgencyLevel } from '@/types'
-import { updateSettings } from '@/app/actions/settings'
+import { updateSettings, deleteAccountAndData } from '@/app/actions/settings'
 import { getDefaultCustomColors } from '@/lib/urgency'
 import { createClient } from '@/lib/supabase/client'
 
@@ -21,6 +22,7 @@ const TIER_LABELS: { level: UrgencyLevel; label: string }[] = [
 ]
 
 export function SettingsForm({ settings }: { settings: Settings | null }) {
+  const router = useRouter()
   const [expirationDays, setExpirationDays] = useState(settings?.expiration_days ?? 14)
   const [dateFormat, setDateFormat] = useState<'MM/DD/YYYY' | 'DD/MM/YYYY'>(settings?.date_format ?? 'MM/DD/YYYY')
   const [theme, setTheme] = useState<'light' | 'dark'>(settings?.theme ?? 'light')
@@ -34,6 +36,8 @@ export function SettingsForm({ settings }: { settings: Settings | null }) {
     settings?.custom_urgency_colors ?? getDefaultCustomColors('green_urgent')
   )
   const [saved, setSaved] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   function updateCustomColor(level: UrgencyLevel, field: 'fill' | 'border' | 'text', value: string) {
     setCustomColors(prev => ({
@@ -54,6 +58,15 @@ export function SettingsForm({ settings }: { settings: Settings | null }) {
     })
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
+  }
+
+  async function handleDeleteAccount() {
+    setDeleting(true)
+    await deleteAccountAndData()
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/login')
+    router.refresh()
   }
 
   const colorSchemeOptions = [
@@ -136,7 +149,7 @@ export function SettingsForm({ settings }: { settings: Settings | null }) {
           <button
             type="button" role="switch" aria-checked={voiceEnabled}
             onClick={() => setVoiceEnabled(!voiceEnabled)}
-            className={`relative w-12 h-7 rounded-full transition-colors ${voiceEnabled ? 'bg-[var(--color-soon)]' : 'bg-gray-200'}`}
+            className={`relative w-12 h-7 rounded-full transition-colors ${voiceEnabled ? 'bg-green-500' : 'bg-gray-200'}`}
           >
             <span className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-transform ${voiceEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
           </button>
@@ -236,7 +249,7 @@ export function SettingsForm({ settings }: { settings: Settings | null }) {
                 setGcalEnabled(false)
               }
             }}
-            className={`relative w-12 h-7 rounded-full transition-colors ${gcalEnabled ? 'bg-[var(--color-soon)]' : 'bg-gray-200'}`}
+            className={`relative w-12 h-7 rounded-full transition-colors ${gcalEnabled ? 'bg-green-500' : 'bg-gray-200'}`}
           >
             <span className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-transform ${gcalEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
           </button>
@@ -249,6 +262,48 @@ export function SettingsForm({ settings }: { settings: Settings | null }) {
       >
         {saved ? '✓ Saved' : 'Save settings'}
       </button>
+
+      {/* Delete account */}
+      <div className="bg-white rounded-xl border border-red-200 p-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-red-600">Delete account &amp; all data</p>
+            <p className="text-xs text-[var(--color-text-muted)] mt-0.5">Permanently removes all tasks, boards and settings</p>
+          </div>
+          {!confirmDelete && (
+            <button
+              type="button"
+              onClick={() => setConfirmDelete(true)}
+              className="h-9 px-4 rounded-xl bg-red-50 border border-red-200 text-sm text-red-600 hover:bg-red-100 transition-colors"
+            >
+              Delete
+            </button>
+          )}
+        </div>
+        {confirmDelete && (
+          <div className="mt-4 p-3 bg-red-50 rounded-xl border border-red-200">
+            <p className="text-sm text-red-700 font-medium mb-3">This cannot be undone. Every task, board and setting will be permanently deleted.</p>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(false)}
+                disabled={deleting}
+                className="flex-1 h-9 rounded-lg border border-[var(--color-border)] text-sm text-[var(--color-text-muted)] hover:bg-gray-50 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteAccount}
+                disabled={deleting}
+                className="flex-1 h-9 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700 transition-colors disabled:opacity-50"
+              >
+                {deleting ? 'Deleting…' : 'Yes, delete everything'}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

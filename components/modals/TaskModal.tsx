@@ -1,11 +1,11 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useRef } from 'react'
 import type { Task } from '@/types'
 import { createTask, updateTask, archiveTask, deleteTask } from '@/app/actions/tasks'
 import { pushTaskToCalendar } from '@/app/actions/calendar'
 
 interface TaskModalProps {
-  task?: Task | null        // null = create mode
+  task?: Task | null
   onClose: () => void
   googleCalendarEnabled?: boolean
   boardId?: string | null
@@ -18,14 +18,11 @@ export function TaskModal({ task, onClose, googleCalendarEnabled, boardId }: Tas
   const [forLater, setForLater] = useState(task?.for_later ?? false)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+  const formRef = useRef<HTMLFormElement>(null)
 
-  useEffect(() => {
-    function handleKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose()
-    }
-    window.addEventListener('keydown', handleKey)
-    return () => window.removeEventListener('keydown', handleKey)
-  }, [onClose])
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'Escape') onClose()
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -43,6 +40,26 @@ export function TaskModal({ task, onClose, googleCalendarEnabled, boardId }: Tas
     }
     setSuccess(true)
     setTimeout(onClose, 1200)
+  }
+
+  async function handleSaveAndAnother() {
+    if (!formRef.current?.checkValidity()) {
+      formRef.current?.reportValidity()
+      return
+    }
+    setLoading(true)
+    await createTask({
+      name,
+      due_date: dueDate || null,
+      details: details || null,
+      for_later: forLater,
+      board_id: boardId ?? null,
+    })
+    setLoading(false)
+    setName('')
+    setDueDate('')
+    setDetails('')
+    setForLater(false)
   }
 
   async function handleArchive() {
@@ -63,6 +80,7 @@ export function TaskModal({ task, onClose, googleCalendarEnabled, boardId }: Tas
     <div
       className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/30 backdrop-blur-sm"
       onClick={e => e.target === e.currentTarget && onClose()}
+      onKeyDown={handleKeyDown}
     >
       <div className="w-full max-w-md bg-white rounded-t-3xl md:rounded-2xl p-6 shadow-xl">
         <div className="flex items-center justify-between mb-5">
@@ -86,7 +104,7 @@ export function TaskModal({ task, onClose, googleCalendarEnabled, boardId }: Tas
             </p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium mb-1" htmlFor="task-name">
                 Task name <span className="text-[var(--color-overdue)]">*</span>
@@ -104,15 +122,17 @@ export function TaskModal({ task, onClose, googleCalendarEnabled, boardId }: Tas
 
             <div>
               <label className="block text-sm font-medium mb-1" htmlFor="due-date">
-                Due date
+                Due date {!forLater && <span className="text-[var(--color-overdue)]">*</span>}
               </label>
               <input
                 id="due-date"
                 type="date"
+                required={!forLater}
                 value={dueDate}
                 onChange={e => setDueDate(e.target.value)}
+                onClick={e => (e.target as HTMLInputElement).showPicker?.()}
                 disabled={forLater}
-                className="w-full h-12 px-4 rounded-xl border border-[var(--color-border)] focus:outline-none focus:border-[var(--color-upcoming)] text-sm disabled:opacity-40"
+                className="w-full h-12 px-4 rounded-xl border border-[var(--color-border)] focus:outline-none focus:border-[var(--color-upcoming)] text-sm disabled:opacity-40 cursor-pointer"
               />
             </div>
 
@@ -130,6 +150,7 @@ export function TaskModal({ task, onClose, googleCalendarEnabled, boardId }: Tas
               />
             </div>
 
+            {/* Save for later toggle */}
             <div className="flex items-center justify-between p-3 rounded-xl bg-[var(--color-for-later)]/20">
               <div>
                 <p className="text-sm font-medium">Park it for later</p>
@@ -140,21 +161,40 @@ export function TaskModal({ task, onClose, googleCalendarEnabled, boardId }: Tas
                 role="switch"
                 aria-checked={forLater}
                 onClick={() => setForLater(!forLater)}
-                className={`relative w-12 h-7 rounded-full transition-colors ${forLater ? 'bg-[var(--color-for-later)]' : 'bg-gray-200'}`}
+                className={`relative w-12 h-7 rounded-full transition-colors ${forLater ? 'bg-green-500' : 'bg-gray-200'}`}
               >
-                <span
-                  className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-transform ${forLater ? 'translate-x-6' : 'translate-x-1'}`}
-                />
+                <span className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-transform ${forLater ? 'translate-x-6' : 'translate-x-1'}`} />
               </button>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full h-12 rounded-xl bg-[var(--color-upcoming)] font-medium text-[var(--color-text)] hover:opacity-90 transition-opacity disabled:opacity-50"
-            >
-              {loading ? '…' : task ? 'Save changes' : 'Add task'}
-            </button>
+            {/* Submit buttons */}
+            {task ? (
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full h-12 rounded-xl bg-[var(--color-upcoming)] font-medium text-[var(--color-text)] hover:opacity-90 transition-opacity disabled:opacity-50"
+              >
+                {loading ? '…' : 'Save changes'}
+              </button>
+            ) : (
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 h-12 rounded-xl bg-[var(--color-upcoming)] font-medium text-[var(--color-text)] hover:opacity-90 transition-opacity disabled:opacity-50 text-sm"
+                >
+                  {loading ? '…' : 'Add task'}
+                </button>
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={handleSaveAndAnother}
+                  className="flex-1 h-12 rounded-xl border-2 border-[var(--color-upcoming)] font-medium text-[var(--color-text)] hover:bg-[var(--color-upcoming)]/10 transition-colors disabled:opacity-50 text-sm"
+                >
+                  {loading ? '…' : '+ Create another'}
+                </button>
+              </div>
+            )}
 
             {task?.due_date && googleCalendarEnabled && (
               <button

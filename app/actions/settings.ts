@@ -24,3 +24,13 @@ export async function updateSettings(data: {
   if (error) throw new Error(error.message)
   revalidatePath('/settings')
 }
+
+export async function deleteAccountAndData() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  await supabase.from('tasks').delete().eq('user_id', user.id)
+  await supabase.from('boards').delete().eq('user_id', user.id)
+  await supabase.from('settings').delete().eq('user_id', user.id)
+}

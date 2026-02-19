@@ -128,13 +128,22 @@ export function Sidebar({ initialBoards }: SidebarProps) {
                       ✏️
                     </button>
                     {confirmDeleteId === board.id ? (
-                      <button
-                        onClick={() => handleDelete(board.id)}
-                        className="w-6 h-6 flex items-center justify-center rounded bg-red-100 text-red-600 text-xs font-bold hover:bg-red-200"
-                        aria-label="Confirm delete"
-                      >
-                        ✓
-                      </button>
+                      <>
+                        <button
+                          onClick={() => handleDelete(board.id)}
+                          className="h-6 px-1.5 flex items-center justify-center rounded bg-red-500 text-white text-xs font-bold hover:bg-red-600"
+                          aria-label="Confirm delete"
+                        >
+                          Del
+                        </button>
+                        <button
+                          onClick={() => setConfirmDeleteId(null)}
+                          className="w-6 h-6 flex items-center justify-center rounded bg-gray-100 text-gray-500 text-xs hover:bg-gray-200"
+                          aria-label="Cancel delete"
+                        >
+                          ×
+                        </button>
+                      </>
                     ) : (
                       <button
                         onClick={() => setConfirmDeleteId(board.id)}
