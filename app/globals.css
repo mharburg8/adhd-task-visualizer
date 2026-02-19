@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+:root {
+  --color-overdue:    #FF8A80;
+  --color-tomorrow:   #FFD180;
+  --color-soon:       #B9F6CA;
+  --color-upcoming:   #80D8FF;
+  --color-future:     #B3E5FC;
+  --color-for-later:  #CE93D8;
+  --color-surface:    #FAFAFA;
+  --color-text:       #1A1A2E;
+  --color-text-muted: #6B7280;
+  --color-border:     #E5E7EB;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(var(--tx, 0px), var(--ty, 0px)); }
+  25%       { transform: translate(calc(var(--tx, 0px) + var(--drift-x, 6px)), calc(var(--ty, 0px) - var(--drift-y, 4px))); }
+  75%       { transform: translate(calc(var(--tx, 0px) - var(--drift-x, 6px)), calc(var(--ty, 0px) + var(--drift-y, 4px))); }
+}
+
+@keyframes pulse-ring {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 1.0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bubble-float { animation: none !important; }
+  .pulse-ring   { animation: none !important; }
+}
+
+* { box-sizing: border-box; }
+body {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
