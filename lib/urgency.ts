@@ -9,18 +9,18 @@ type TierConfig = {
 }
 
 const TIER_CONFIG_GREEN_URGENT: Record<UrgencyLevel, TierConfig> = {
-  overdue:   { fill: '#FF1744', border: '#B71C1C', text: '#FFFFFF', score: 1.00 },
-  red_2:     { fill: '#FF5252', border: '#C62828', text: '#FFFFFF', score: 0.90 },
-  red_1:     { fill: '#FF8A80', border: '#F44336', text: '#7F0000', score: 0.80 },
-  orange_2:  { fill: '#FFA726', border: '#E65100', text: '#4A1800', score: 0.70 },
-  orange_1:  { fill: '#FFCC80', border: '#FF9800', text: '#7B3D00', score: 0.60 },
-  yellow_2:  { fill: '#FFE033', border: '#F9A825', text: '#5D3A00', score: 0.50 },
-  yellow_1:  { fill: '#FFF59D', border: '#FDD835', text: '#7B5800', score: 0.40 },
-  green_3:   { fill: '#5EC96A', border: '#388E3C', text: '#1B5E20', score: 0.30 },
-  green_2:   { fill: '#8FE09A', border: '#4CAF50', text: '#1B5E20', score: 0.20 },
-  green_1:   { fill: '#B8F0BE', border: '#74C483', text: '#1B5E20', score: 0.10 },
-  for_later: { fill: '#CE93D8', border: '#AB47BC', text: '#4A148C', score: 0.00 },
-  no_date:   { fill: '#B3E5FC', border: '#81D4FA', text: '#0277BD', score: 0.10 },
+  overdue:   { fill: '#FF8A80', border: '#E53935', text: '#4E1E18', score: 1.00 },  // coral
+  red_2:     { fill: '#FFAB76', border: '#FF6D00', text: '#4A1800', score: 0.90 },  // coral→amber
+  red_1:     { fill: '#FFD180', border: '#FF9800', text: '#4A1800', score: 0.80 },  // amber
+  orange_2:  { fill: '#FFE082', border: '#FFB300', text: '#4A1800', score: 0.70 },  // golden
+  orange_1:  { fill: '#DCEDC8', border: '#AED581', text: '#1B5E20', score: 0.60 },  // pale mint
+  yellow_2:  { fill: '#B9F6CA', border: '#69F0AE', text: '#1B5E20', score: 0.50 },  // mint green
+  yellow_1:  { fill: '#A5D6A7', border: '#66BB6A', text: '#1B5E20', score: 0.40 },  // soft green
+  green_3:   { fill: '#80DEEA', border: '#26C6DA', text: '#004D40', score: 0.30 },  // aqua
+  green_2:   { fill: '#80D8FF', border: '#40C4FF', text: '#01579B', score: 0.20 },  // sky blue
+  green_1:   { fill: '#B3E5FC', border: '#81D4FA', text: '#01579B', score: 0.10 },  // light blue
+  for_later: { fill: '#CE93D8', border: '#AB47BC', text: '#4A148C', score: 0.00 },  // lavender
+  no_date:   { fill: '#B3E5FC', border: '#81D4FA', text: '#01579B', score: 0.10 },  // light blue
 }
 
 const TIER_CONFIG_RED_URGENT: Record<UrgencyLevel, TierConfig> = {
