@@ -14,6 +14,8 @@ interface BoardClientProps {
 export function BoardClient({ initialTasks, initialSettings }: BoardClientProps) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks)
   const [view, setView] = useState<'bubble' | 'list'>('bubble')
+  const colorScheme = initialSettings?.urgency_color_scheme ?? 'green_urgent'
+  const customColors = initialSettings?.custom_urgency_colors ?? undefined
   const [selectedTask, setSelectedTask] = useState<Task | null | undefined>(undefined)
   const supabase = createClient()
 
@@ -71,12 +73,14 @@ export function BoardClient({ initialTasks, initialSettings }: BoardClientProps)
 
       {/* Board */}
       {view === 'bubble' ? (
-        <BubbleBoard tasks={tasks} onTaskClick={setSelectedTask} />
+        <BubbleBoard tasks={tasks} onTaskClick={setSelectedTask} colorScheme={colorScheme} customColors={customColors} />
       ) : (
         <ListView
           tasks={tasks}
           onTaskClick={setSelectedTask}
           dateFormat={initialSettings?.date_format ?? 'MM/DD/YYYY'}
+          colorScheme={colorScheme}
+          customColors={customColors}
         />
       )}
 

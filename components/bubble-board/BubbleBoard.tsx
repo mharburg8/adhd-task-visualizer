@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useRef, useState, useCallback } from 'react'
-import type { Task } from '@/types'
+import type { Task, CustomUrgencyColors } from '@/types'
 import { getUrgencyInfo } from '@/lib/urgency'
 import { BubbleCard } from './BubbleCard'
 
@@ -13,6 +13,8 @@ interface BubblePosition {
 interface BubbleBoardProps {
   tasks: Task[]
   onTaskClick: (task: Task) => void
+  colorScheme?: 'green_urgent' | 'red_urgent' | 'custom'
+  customColors?: CustomUrgencyColors
 }
 
 function calculatePositions(tasks: Task[], width: number, height: number): BubblePosition[] {
@@ -43,7 +45,7 @@ function calculatePositions(tasks: Task[], width: number, height: number): Bubbl
   })
 }
 
-export function BubbleBoard({ tasks, onTaskClick }: BubbleBoardProps) {
+export function BubbleBoard({ tasks, onTaskClick, colorScheme = 'green_urgent', customColors }: BubbleBoardProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [positions, setPositions] = useState<BubblePosition[]>([])
 
@@ -81,7 +83,7 @@ export function BubbleBoard({ tasks, onTaskClick }: BubbleBoardProps) {
             key={task.id}
             style={{ position: 'absolute', left: pos.x, top: pos.y }}
           >
-            <BubbleCard task={task} onClick={onTaskClick} />
+            <BubbleCard task={task} onClick={onTaskClick} colorScheme={colorScheme} customColors={customColors} />
           </div>
         )
       })}

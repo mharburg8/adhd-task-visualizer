@@ -1,4 +1,4 @@
-import type { Task } from '@/types'
+import type { Task, CustomUrgencyColors } from '@/types'
 import { getUrgencyInfo } from '@/lib/urgency'
 import { format, parseISO } from 'date-fns'
 
@@ -6,13 +6,17 @@ interface ListRowProps {
   task: Task
   onClick: (task: Task) => void
   dateFormat: string
+  colorScheme?: 'green_urgent' | 'red_urgent' | 'custom'
+  customColors?: CustomUrgencyColors
 }
 
-export function ListRow({ task, onClick, dateFormat }: ListRowProps) {
+export function ListRow({ task, onClick, dateFormat, colorScheme = 'green_urgent', customColors }: ListRowProps) {
   const urgency = getUrgencyInfo({
     due_date: task.due_date,
     for_later: task.for_later,
     created_at: task.created_at,
+    colorScheme,
+    customColors,
   })
 
   const rowHeight = 48 + urgency.score * 48  // 48px–96px

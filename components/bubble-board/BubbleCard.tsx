@@ -1,12 +1,14 @@
 'use client'
 import { useMemo } from 'react'
-import type { Task } from '@/types'
+import type { Task, CustomUrgencyColors } from '@/types'
 import { getUrgencyInfo } from '@/lib/urgency'
 import { RadialRingTimer } from './RadialRingTimer'
 
 interface BubbleCardProps {
   task: Task
   onClick: (task: Task) => void
+  colorScheme?: 'green_urgent' | 'red_urgent' | 'custom'
+  customColors?: CustomUrgencyColors
 }
 
 // Deterministic random from task id (stable across renders)
@@ -16,14 +18,16 @@ function seededRandom(seed: string, index: number) {
   return Math.abs(Math.sin(h + index) * 10000) % 1
 }
 
-export function BubbleCard({ task, onClick }: BubbleCardProps) {
+export function BubbleCard({ task, onClick, colorScheme = 'green_urgent', customColors }: BubbleCardProps) {
   const urgency = useMemo(
     () => getUrgencyInfo({
       due_date: task.due_date,
       for_later: task.for_later,
       created_at: task.created_at,
+      colorScheme,
+      customColors,
     }),
-    [task.due_date, task.for_later, task.created_at]
+    [task.due_date, task.for_later, task.created_at, colorScheme, customColors]
   )
 
   const floatDuration = useMemo(() => 3 + seededRandom(task.id, 0) * 3, [task.id])

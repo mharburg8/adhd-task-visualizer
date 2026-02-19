@@ -1,4 +1,4 @@
-import type { Task } from '@/types'
+import type { Task, CustomUrgencyColors } from '@/types'
 import { getUrgencyInfo } from '@/lib/urgency'
 import { ListRow } from './ListRow'
 
@@ -6,12 +6,14 @@ interface ListViewProps {
   tasks: Task[]
   onTaskClick: (task: Task) => void
   dateFormat: string
+  colorScheme?: 'green_urgent' | 'red_urgent' | 'custom'
+  customColors?: CustomUrgencyColors
 }
 
-export function ListView({ tasks, onTaskClick, dateFormat }: ListViewProps) {
+export function ListView({ tasks, onTaskClick, dateFormat, colorScheme = 'green_urgent', customColors }: ListViewProps) {
   const sorted = [...tasks].sort((a, b) => {
-    const scoreA = getUrgencyInfo({ due_date: a.due_date, for_later: a.for_later, created_at: a.created_at }).score
-    const scoreB = getUrgencyInfo({ due_date: b.due_date, for_later: b.for_later, created_at: b.created_at }).score
+    const scoreA = getUrgencyInfo({ due_date: a.due_date, for_later: a.for_later, created_at: a.created_at, colorScheme, customColors }).score
+    const scoreB = getUrgencyInfo({ due_date: b.due_date, for_later: b.for_later, created_at: b.created_at, colorScheme, customColors }).score
     return scoreB - scoreA
   })
 
@@ -28,7 +30,7 @@ export function ListView({ tasks, onTaskClick, dateFormat }: ListViewProps) {
   return (
     <div className="p-4">
       {sorted.map(task => (
-        <ListRow key={task.id} task={task} onClick={onTaskClick} dateFormat={dateFormat} />
+        <ListRow key={task.id} task={task} onClick={onTaskClick} dateFormat={dateFormat} colorScheme={colorScheme} customColors={customColors} />
       ))}
     </div>
   )
