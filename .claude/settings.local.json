@@ -3,7 +3,33 @@
     "allow": [
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(git init:*)"
+      "Bash(git init:*)",
+      "Bash(git branch:*)",
+      "Bash(git remote add:*)",
+      "Bash(git push:*)",
+      "Bash(git check-ignore:*)",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir=false --import-alias=\"@/*\" --yes)",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir=false --import-alias=\"@/*\" --yes --name adhd-task-visualizer)",
+      "Bash(git worktree:*)",
+      "Bash(node:*)",
+      "Bash(npm:*)",
+      "Bash(npm install:*)",
+      "Bash(npm test:*)",
+      "Bash(npx jest lib/__tests__/urgency.test.ts)",
+      "Bash(npx jest:*)",
+      "Bash(npx tsc:*)",
+      "Bash(git rm:*)",
+      "Bash(git checkout:*)",
+      "Bash(git pull:*)",
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)",
+      "Bash(python3:*)",
+      "Bash(taskkill:*)",
+      "Bash(cmd.exe /c \"taskkill /PID 66048 /F\")",
+      "Bash(cmd.exe /c \"netstat -ano | findstr :3000\")",
+      "Bash(node -e \"let d=''''; process.stdin.on\\(''data'',c=>d+=c\\); process.stdin.on\\(''end'',\\(\\)=>{ try { const r=JSON.parse\\(d\\); if\\(r.users\\) r.users.forEach\\(u=>console.log\\(u.email, u.id, u.confirmed_at||''unconfirmed''\\)\\); else console.log\\(d.substring\\(0,500\\)\\); } catch\\(e\\){ console.log\\(d.substring\\(0,500\\)\\); } }\\)\")",
+      "Bash(cmd.exe /c \"FOR /F \"\"tokens=5\"\" %a IN \\(''netstat -aon ^| findstr :3000''\\) DO taskkill /F /PID %a\")",
+      "Bash(node -e \":*)"
     ]
   }
 }
