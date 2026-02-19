@@ -8,7 +8,7 @@ import {
 import { revalidatePath } from 'next/cache'
 
 async function getTokens() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { session } } = await supabase.auth.getSession()
   if (!session?.provider_token || !session?.provider_refresh_token) {
     throw new Error('No Google OAuth tokens — user must re-authenticate')

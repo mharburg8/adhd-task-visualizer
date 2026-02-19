@@ -8,7 +8,7 @@ export async function createTask(data: {
   details: string | null
   for_later: boolean
 }) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
 
@@ -26,7 +26,7 @@ export async function updateTask(id: string, data: {
   details?: string | null
   for_later?: boolean
 }) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
 
@@ -40,7 +40,7 @@ export async function updateTask(id: string, data: {
 }
 
 export async function archiveTask(id: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
 
@@ -55,7 +55,7 @@ export async function archiveTask(id: string) {
 }
 
 export async function deleteTask(id: string) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
 

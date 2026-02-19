@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { format, parseISO } from 'date-fns'
 
 export default async function ArchivedPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: tasks } = await supabase
     .from('tasks')
     .select('*')

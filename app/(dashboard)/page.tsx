@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { BoardClient } from '@/components/bubble-board/BoardClient'
 
 export default async function MainBoardPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
 
   const [{ data: tasks }, { data: settings }] = await Promise.all([
     supabase

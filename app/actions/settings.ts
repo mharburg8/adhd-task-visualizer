@@ -7,7 +7,7 @@ export async function updateSettings(data: {
   date_format?: 'MM/DD/YYYY' | 'DD/MM/YYYY'
   google_calendar_enabled?: boolean
 }) {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
 

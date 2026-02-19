@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { ForLaterClient } from '@/components/list-view/ForLaterClient'
 
 export default async function ForLaterPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: tasks } = await supabase
     .from('tasks')
     .select('*')
