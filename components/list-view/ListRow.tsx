@@ -1,15 +1,16 @@
 'use client'
 import type { Task, CustomUrgencyColors, UrgencyLevel } from '@/types'
 import { getUrgencyInfo } from '@/lib/urgency'
-import { archiveTask } from '@/app/actions/tasks'
 import { format, parseISO } from 'date-fns'
 
 interface ListRowProps {
   task: Task
   onClick: (task: Task) => void
+  onComplete: (id: string) => void
   dateFormat: string
   colorScheme?: 'green_urgent' | 'red_urgent' | 'electric_green' | 'custom'
   customColors?: CustomUrgencyColors
+  completing?: boolean
 }
 
 const TOTAL_DAYS = 30
@@ -22,7 +23,7 @@ function animClass(level: UrgencyLevel): string {
   return ''
 }
 
-export function ListRow({ task, onClick, dateFormat, colorScheme = 'green_urgent', customColors }: ListRowProps) {
+export function ListRow({ task, onClick, onComplete, dateFormat, colorScheme = 'green_urgent', customColors, completing }: ListRowProps) {
   const urgency = getUrgencyInfo({
     due_date: task.due_date,
     for_later: task.for_later,
@@ -34,7 +35,6 @@ export function ListRow({ task, onClick, dateFormat, colorScheme = 'green_urgent
   const rowHeight = Math.round(32 + urgency.score * 98)
   const daysLeft = urgency.daysRemaining ?? 0
 
-  // Elapsed portion: how far through the 30-day window we are
   const hasProgress = urgency.level !== 'for_later' && urgency.level !== 'no_date' && urgency.daysRemaining !== null
   const elapsedPct = !hasProgress || urgency.level === 'overdue'
     ? 1
@@ -61,20 +61,37 @@ export function ListRow({ task, onClick, dateFormat, colorScheme = 'green_urgent
     return `${urgency.daysRemaining} days left`
   })()
 
-  const coloredDiv = (extra: React.CSSProperties) => ({
+  const coloredDiv = (extra: React.CSSProperties): React.CSSProperties => ({
     background: fill,
     display: 'flex',
     alignItems: 'center',
     flexShrink: 0,
     ...extra,
-  } satisfies React.CSSProperties)
+  })
+
+  // When completing: collapse height to 0 smoothly so rows below slide up
+  const rowStyle: React.CSSProperties = completing
+    ? { height: 0, opacity: 0, overflow: 'hidden', transition: 'height 0.35s ease, opacity 0.2s ease', borderBottom: 'none', pointerEvents: 'none' }
+    : { height: rowHeight, borderBottom: '1px solid rgba(0,0,0,0.3)', transition: 'height 0.35s ease, opacity 0.2s ease' }
 
   return (
     <div
       className="list-row flex items-stretch cursor-pointer"
-      style={{ height: rowHeight, borderBottom: '1px solid rgba(0,0,0,0.3)' }}
+      style={rowStyle}
       onClick={() => onClick(task)}
     >
+      {/* Complete (archive) button — LEFT side */}
+      <button
+        onClick={e => { e.stopPropagation(); onComplete(task.id) }}
+        style={{ width: 44, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0D0D1A' }}
+        className="hover:bg-white/10 transition-colors"
+        aria-label="Complete task"
+      >
+        <svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke="#6B7280" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+      </button>
+
       {/* TASK column */}
       <div className={anim} style={coloredDiv({ width: 200, padding: '0 18px', borderRight: '1px solid rgba(0,0,0,0.2)' })}>
         <span style={{ fontSize: taskFontSize, fontWeight: 800, color: fg, lineHeight: 1.2, userSelect: 'none' }}>
@@ -113,18 +130,6 @@ export function ListRow({ task, onClick, dateFormat, colorScheme = 'green_urgent
           </div>
         )}
       </div>
-
-      {/* Archive (complete) button */}
-      <button
-        onClick={e => { e.stopPropagation(); archiveTask(task.id) }}
-        style={{ width: 44, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0D0D1A' }}
-        className="hover:bg-white/10 transition-colors"
-        aria-label="Complete task"
-      >
-        <svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke="#6B7280" strokeWidth={2.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-        </svg>
-      </button>
     </div>
   )
 }

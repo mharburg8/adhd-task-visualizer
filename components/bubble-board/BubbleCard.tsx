@@ -2,15 +2,16 @@
 import { useMemo } from 'react'
 import type { Task, CustomUrgencyColors } from '@/types'
 import { getUrgencyInfo } from '@/lib/urgency'
-import { archiveTask } from '@/app/actions/tasks'
 import { RadialRingTimer } from './RadialRingTimer'
 
 interface BubbleCardProps {
   task: Task
   onClick: (task: Task) => void
+  onComplete: (id: string) => void
   colorScheme?: 'green_urgent' | 'red_urgent' | 'electric_green' | 'custom'
   customColors?: CustomUrgencyColors
   isSpiky?: boolean
+  completing?: boolean
 }
 
 function StarBurst({ diameter }: { diameter: number }) {
@@ -47,7 +48,6 @@ function StarBurst({ diameter }: { diameter: number }) {
   )
 }
 
-// Animation class by urgency level
 function pulseClass(level: string): string {
   if (level === 'overdue') return 'bubble-overdue'
   if (level === 'red_2')   return 'bubble-pulse-fast'
@@ -55,7 +55,7 @@ function pulseClass(level: string): string {
   return ''
 }
 
-export function BubbleCard({ task, onClick, colorScheme = 'green_urgent', customColors, isSpiky }: BubbleCardProps) {
+export function BubbleCard({ task, onClick, onComplete, colorScheme = 'green_urgent', customColors, isSpiky, completing }: BubbleCardProps) {
   const urgency = useMemo(
     () => getUrgencyInfo({
       due_date: task.due_date,
@@ -69,17 +69,15 @@ export function BubbleCard({ task, onClick, colorScheme = 'green_urgent', custom
 
   const { diameter, color, borderColor, textColor, level } = urgency
   const isOverdue = level === 'overdue'
-  const anim = pulseClass(level)
+  const anim = completing ? 'bubble-completing' : pulseClass(level)
 
   return (
     <div
       className={`group${anim ? ` ${anim}` : ''}`}
       style={{ position: 'relative', width: diameter, height: diameter }}
     >
-      {/* Yellow starburst spikes — overdue only, sits behind everything */}
       {isSpiky && <StarBurst diameter={diameter} />}
 
-      {/* Ring timer — outside the bubble, hidden for overdue (replaced by spikes) */}
       {!isOverdue && (
         <RadialRingTimer
           diameter={diameter}
@@ -88,7 +86,6 @@ export function BubbleCard({ task, onClick, colorScheme = 'green_urgent', custom
         />
       )}
 
-      {/* Main bubble */}
       <button
         onClick={() => onClick(task)}
         className="w-full h-full rounded-full flex items-center justify-center text-center cursor-pointer hover:scale-105 transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-upcoming)]"
@@ -98,12 +95,7 @@ export function BubbleCard({ task, onClick, colorScheme = 'green_urgent', custom
           backgroundColor: color,
           border: `2px solid ${borderColor}`,
         }}
-        aria-label={`Task: ${task.name}${urgency.daysRemaining !== null
-          ? urgency.daysRemaining < 0
-            ? ', overdue'
-            : `, due in ${urgency.daysRemaining} day${urgency.daysRemaining !== 1 ? 's' : ''}`
-          : ''
-        }`}
+        aria-label={`Task: ${task.name}`}
       >
         <span
           className="relative z-10 px-3 font-medium leading-tight select-none"
@@ -113,9 +105,9 @@ export function BubbleCard({ task, onClick, colorScheme = 'green_urgent', custom
         </span>
       </button>
 
-      {/* Checkmark — completes (archives) the task, centered near bottom */}
+      {/* Checkmark — center/lower center of bubble */}
       <button
-        onClick={e => { e.stopPropagation(); archiveTask(task.id) }}
+        onClick={e => { e.stopPropagation(); onComplete(task.id) }}
         className="absolute z-20 w-8 h-8 rounded-full bg-white/90 border border-gray-200 hidden group-hover:flex items-center justify-center transition-colors hover:bg-green-50 hover:border-green-300"
         style={{
           bottom: Math.round(diameter * 0.18),

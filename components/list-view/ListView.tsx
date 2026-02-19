@@ -1,5 +1,8 @@
+'use client'
+import { useState } from 'react'
 import type { Task, CustomUrgencyColors } from '@/types'
 import { getUrgencyInfo } from '@/lib/urgency'
+import { archiveTask } from '@/app/actions/tasks'
 import { ListRow } from './ListRow'
 
 interface ListViewProps {
@@ -11,11 +14,25 @@ interface ListViewProps {
 }
 
 export function ListView({ tasks, onTaskClick, dateFormat, colorScheme = 'green_urgent', customColors }: ListViewProps) {
+  const [completingIds, setCompletingIds] = useState<Set<string>>(new Set())
+
   const sorted = [...tasks].sort((a, b) => {
     const scoreA = getUrgencyInfo({ due_date: a.due_date, for_later: a.for_later, created_at: a.created_at, colorScheme, customColors }).score
     const scoreB = getUrgencyInfo({ due_date: b.due_date, for_later: b.for_later, created_at: b.created_at, colorScheme, customColors }).score
     return scoreB - scoreA
   })
+
+  function handleComplete(id: string) {
+    setCompletingIds(prev => new Set(prev).add(id))
+    setTimeout(() => {
+      archiveTask(id)
+      setCompletingIds(prev => {
+        const next = new Set(prev)
+        next.delete(id)
+        return next
+      })
+    }, 350)
+  }
 
   if (sorted.length === 0) {
     return (
@@ -34,10 +51,10 @@ export function ListView({ tasks, onTaskClick, dateFormat, colorScheme = 'green_
         className="flex sticky top-0 z-10"
         style={{ borderBottom: '2px solid rgba(255,255,255,0.1)', background: '#0D0D1A' }}
       >
+        <div style={{ width: 44, flexShrink: 0 }} />
         <div style={{ width: 200, flexShrink: 0, padding: '10px 18px', borderRight: '1px solid rgba(255,255,255,0.08)', fontSize: 11, fontWeight: 900, letterSpacing: '0.15em', color: '#888', textTransform: 'uppercase' as const }}>Task</div>
         <div style={{ width: 160, flexShrink: 0, padding: '10px 16px', borderRight: '1px solid rgba(255,255,255,0.08)', fontSize: 11, fontWeight: 900, letterSpacing: '0.15em', color: '#888', textTransform: 'uppercase' as const }}>Due</div>
         <div style={{ flex: 1, padding: '10px 16px', fontSize: 11, fontWeight: 900, letterSpacing: '0.15em', color: '#888', textTransform: 'uppercase' as const }}>Time Remaining ▶</div>
-        <div style={{ width: 44, flexShrink: 0 }} />
       </div>
 
       {sorted.map(task => (
@@ -45,9 +62,11 @@ export function ListView({ tasks, onTaskClick, dateFormat, colorScheme = 'green_
           key={task.id}
           task={task}
           onClick={onTaskClick}
+          onComplete={handleComplete}
           dateFormat={dateFormat}
           colorScheme={colorScheme}
           customColors={customColors}
+          completing={completingIds.has(task.id)}
         />
       ))}
     </div>

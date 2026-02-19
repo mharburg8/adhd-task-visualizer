@@ -71,6 +71,14 @@
   .list-row-strobe, .list-row-pulse-fast, .list-row-pulse-normal { animation: none !important; }
 }
 
+@keyframes bubble-pop {
+  0%   { transform: scale(1);   opacity: 1; }
+  40%  { transform: scale(1.35); opacity: 1; }
+  100% { transform: scale(0);   opacity: 0; }
+}
+
+.bubble-completing { animation: bubble-pop 0.4s ease-out forwards; }
+
 * { box-sizing: border-box; }
 body {
   background-color: var(--color-surface);

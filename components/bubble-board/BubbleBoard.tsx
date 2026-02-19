@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import type { Task, CustomUrgencyColors } from '@/types'
 import { getUrgencyInfo } from '@/lib/urgency'
+import { archiveTask } from '@/app/actions/tasks'
 import { BubbleCard } from './BubbleCard'
 
 interface BubblePosition {
@@ -104,8 +105,10 @@ function calculatePositions(tasks: Task[], width: number, height: number): Bubbl
 export function BubbleBoard({ tasks, onTaskClick, colorScheme = 'green_urgent', customColors }: BubbleBoardProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [positions, setPositions] = useState<BubblePosition[]>([])
+  const [completingIds, setCompletingIds] = useState<Set<string>>(new Set())
+  // Enable position transitions only after first layout to avoid fly-in on mount
+  const hasLaidOut = useRef(false)
 
-  // Determine which task IDs are overdue (they get spikes)
   const overdueIds = new Set(
     tasks
       .filter(t => getUrgencyInfo({ due_date: t.due_date, for_later: t.for_later, created_at: t.created_at }).level === 'overdue')
@@ -115,7 +118,12 @@ export function BubbleBoard({ tasks, onTaskClick, colorScheme = 'green_urgent', 
   const recalculate = useCallback(() => {
     if (!containerRef.current) return
     const { offsetWidth: w, offsetHeight: h } = containerRef.current
-    setPositions(calculatePositions(tasks, w, h))
+    const newPos = calculatePositions(tasks, w, h)
+    setPositions(newPos)
+    if (!hasLaidOut.current && newPos.length > 0) {
+      // Allow a paint cycle before enabling transitions
+      requestAnimationFrame(() => { hasLaidOut.current = true })
+    }
   }, [tasks])
 
   useEffect(() => {
@@ -123,6 +131,18 @@ export function BubbleBoard({ tasks, onTaskClick, colorScheme = 'green_urgent', 
     window.addEventListener('resize', recalculate)
     return () => window.removeEventListener('resize', recalculate)
   }, [recalculate])
+
+  function handleComplete(id: string) {
+    setCompletingIds(prev => new Set(prev).add(id))
+    setTimeout(() => {
+      archiveTask(id)
+      setCompletingIds(prev => {
+        const next = new Set(prev)
+        next.delete(id)
+        return next
+      })
+    }, 400)
+  }
 
   if (tasks.length === 0) {
     return (
@@ -144,14 +164,21 @@ export function BubbleBoard({ tasks, onTaskClick, colorScheme = 'green_urgent', 
         return (
           <div
             key={task.id}
-            style={{ position: 'absolute', left: pos.x, top: pos.y }}
+            style={{
+              position: 'absolute',
+              left: pos.x,
+              top: pos.y,
+              transition: hasLaidOut.current ? 'left 0.5s ease, top 0.5s ease' : 'none',
+            }}
           >
             <BubbleCard
               task={task}
               onClick={onTaskClick}
+              onComplete={handleComplete}
               colorScheme={colorScheme}
               customColors={customColors}
               isSpiky={overdueIds.has(task.id)}
+              completing={completingIds.has(task.id)}
             />
           </div>
         )

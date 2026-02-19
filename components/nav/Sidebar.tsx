@@ -86,14 +86,8 @@ export function Sidebar({ initialBoards }: SidebarProps) {
       </div>
 
       <nav className="flex-1 space-y-0.5">
-        {/* My Board — always first */}
-        <Link href="/" className={navLinkClass('/')}>
-          <span className="text-base">🫧</span>
-          My Board
-        </Link>
-
-        {/* Custom boards — right under My Board */}
-        <div className="pl-3 space-y-0.5">
+        {/* Boards */}
+        <div className="space-y-0.5">
           {boards.map(board => {
             const isActive = pathname === `/board/${board.id}`
             return (
@@ -113,7 +107,7 @@ export function Sidebar({ initialBoards }: SidebarProps) {
                 ) : (
                   <Link
                     href={`/board/${board.id}`}
-                    className={`flex-1 flex items-center gap-2 px-2 py-2 rounded-xl text-sm font-medium transition-colors min-h-[40px] truncate
+                    className={`flex-1 flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors min-h-[48px] truncate
                       ${isActive
                         ? 'bg-[var(--color-upcoming)] text-[var(--color-text)]'
                         : 'text-[var(--color-text-muted)] hover:bg-gray-50 hover:text-[var(--color-text)]'
