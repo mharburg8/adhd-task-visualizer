@@ -31,15 +31,13 @@ export function ListView({ tasks, onTaskClick, dateFormat, colorScheme = 'green_
     <div className="flex flex-col flex-1 overflow-auto" style={{ background: '#0D0D1A' }}>
       {/* Column headers */}
       <div
-        className="grid sticky top-0 z-10 border-b border-white/10"
-        style={{ gridTemplateColumns: '2fr 1fr 2fr 44px', background: '#0D0D1A' }}
+        className="flex sticky top-0 z-10"
+        style={{ borderBottom: '2px solid rgba(255,255,255,0.1)', background: '#0D0D1A' }}
       >
-        <div className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-gray-400">Task</div>
-        <div className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-gray-400">Due</div>
-        <div className="px-4 py-2 text-xs font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-1">
-          Time Remaining <span className="text-gray-600">▶</span>
-        </div>
-        <div />
+        <div style={{ width: 200, flexShrink: 0, padding: '10px 18px', borderRight: '1px solid rgba(255,255,255,0.08)', fontSize: 11, fontWeight: 900, letterSpacing: '0.15em', color: '#888', textTransform: 'uppercase' as const }}>Task</div>
+        <div style={{ width: 160, flexShrink: 0, padding: '10px 16px', borderRight: '1px solid rgba(255,255,255,0.08)', fontSize: 11, fontWeight: 900, letterSpacing: '0.15em', color: '#888', textTransform: 'uppercase' as const }}>Due</div>
+        <div style={{ flex: 1, padding: '10px 16px', fontSize: 11, fontWeight: 900, letterSpacing: '0.15em', color: '#888', textTransform: 'uppercase' as const }}>Time Remaining ▶</div>
+        <div style={{ width: 44, flexShrink: 0 }} />
       </div>
 
       {sorted.map(task => (

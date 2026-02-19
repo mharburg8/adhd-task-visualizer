@@ -12,35 +12,14 @@ interface ListRowProps {
   customColors?: CustomUrgencyColors
 }
 
-// Dark saturated row colors matching the design reference (image 1)
-const ROW_BG: Record<UrgencyLevel, string> = {
-  overdue:   '#3D0000',
-  red_2:     '#7A0000',
-  red_1:     '#990000',
-  orange_2:  '#7A3300',
-  orange_1:  '#7A5500',
-  yellow_2:  '#5C5C00',
-  yellow_1:  '#4A4A00',
-  green_3:   '#1A4A1A',
-  green_2:   '#1A3A1A',
-  green_1:   '#143314',
-  for_later: '#2D1A3D',
-  no_date:   '#1A1A3D',
-}
+const TOTAL_DAYS = 30
+const REMAIN_COLOR = '#A5D6A7'
 
-const ROW_TEXT: Record<UrgencyLevel, string> = {
-  overdue:   '#FFB3B3',
-  red_2:     '#FFFFFF',
-  red_1:     '#FFFFFF',
-  orange_2:  '#FFD699',
-  orange_1:  '#FFE0A3',
-  yellow_2:  '#FFFF99',
-  yellow_1:  '#FFFFA0',
-  green_3:   '#AAFFAA',
-  green_2:   '#99FF99',
-  green_1:   '#88EE88',
-  for_later: '#E8B8F0',
-  no_date:   '#B3E5FC',
+function animClass(level: UrgencyLevel): string {
+  if (level === 'overdue') return 'list-row-strobe'
+  if (level === 'red_2')   return 'list-row-pulse-fast'
+  if (level === 'red_1')   return 'list-row-pulse-normal'
+  return ''
 }
 
 export function ListRow({ task, onClick, dateFormat, colorScheme = 'green_urgent', customColors }: ListRowProps) {
@@ -52,10 +31,20 @@ export function ListRow({ task, onClick, dateFormat, colorScheme = 'green_urgent
     customColors,
   })
 
-  const rowHeight = Math.round(52 + urgency.score * 68)  // 52px → 120px
-  const barPct = urgency.daysRemaining !== null && urgency.daysRemaining > 0
-    ? Math.min(urgency.daysRemaining / 30, 1) * 100
-    : 0
+  const rowHeight = Math.round(32 + urgency.score * 98)
+  const daysLeft = urgency.daysRemaining ?? 0
+
+  // Elapsed portion: how far through the 30-day window we are
+  const hasProgress = urgency.level !== 'for_later' && urgency.level !== 'no_date' && urgency.daysRemaining !== null
+  const elapsedPct = !hasProgress || urgency.level === 'overdue'
+    ? 1
+    : Math.min(1, Math.max(0.02, 1 - (daysLeft / TOTAL_DAYS)))
+
+  const anim = animClass(urgency.level)
+  const fill = urgency.color
+  const fg   = urgency.textColor
+  const taskFontSize = Math.max(11, rowHeight * 0.13)
+  const dueFontSize  = Math.max(11, rowHeight * 0.115)
 
   const dueLabel = (() => {
     if (!task.due_date) return '—'
@@ -66,46 +55,61 @@ export function ListRow({ task, onClick, dateFormat, colorScheme = 'green_urgent
     return format(parseISO(task.due_date), dateFormat === 'DD/MM/YYYY' ? 'dd/MM/yyyy' : 'MM/dd/yyyy')
   })()
 
-  const timeLabel = (() => {
-    if (urgency.daysRemaining === null) return ''
-    if (urgency.daysRemaining < 0) return ''
-    if (urgency.daysRemaining === 0) return 'Due today!'
-    return `${urgency.daysRemaining} day${urgency.daysRemaining !== 1 ? 's' : ''} left`
+  const remainLabel = (() => {
+    if (!hasProgress || urgency.daysRemaining === null || urgency.daysRemaining <= 0) return ''
+    if (urgency.daysRemaining === 1) return '1 day left'
+    return `${urgency.daysRemaining} days left`
   })()
 
-  const bg = ROW_BG[urgency.level]
-  const fg = ROW_TEXT[urgency.level]
+  const coloredDiv = (extra: React.CSSProperties) => ({
+    background: fill,
+    display: 'flex',
+    alignItems: 'center',
+    flexShrink: 0,
+    ...extra,
+  } satisfies React.CSSProperties)
 
   return (
     <div
-      className="grid w-full border-b border-black/20 hover:brightness-125 transition-all cursor-pointer"
-      style={{ gridTemplateColumns: '2fr 1fr 2fr 44px', minHeight: rowHeight, backgroundColor: bg }}
+      className="list-row flex items-stretch cursor-pointer"
+      style={{ height: rowHeight, borderBottom: '1px solid rgba(0,0,0,0.3)' }}
       onClick={() => onClick(task)}
     >
-      {/* Task name */}
-      <div className="flex items-center px-4 py-2">
-        <span className="font-bold text-sm leading-snug" style={{ color: fg }}>
+      {/* TASK column */}
+      <div className={anim} style={coloredDiv({ width: 200, padding: '0 18px', borderRight: '1px solid rgba(0,0,0,0.2)' })}>
+        <span style={{ fontSize: taskFontSize, fontWeight: 800, color: fg, lineHeight: 1.2, userSelect: 'none' }}>
           {task.name}
         </span>
       </div>
 
-      {/* Due date */}
-      <div className="flex items-center px-3">
-        <span className="text-sm font-medium whitespace-nowrap" style={{ color: fg }}>
+      {/* DUE column */}
+      <div className={anim} style={coloredDiv({ width: 160, padding: '0 16px', borderRight: '2px solid rgba(0,0,0,0.25)' })}>
+        <span style={{ fontSize: dueFontSize, fontWeight: 700, color: fg, userSelect: 'none', whiteSpace: 'nowrap' }}>
           {dueLabel}
         </span>
       </div>
 
-      {/* Time remaining bar */}
-      <div className="relative flex items-center overflow-hidden">
-        {barPct > 0 && (
-          <div
-            className="absolute right-0 top-0 bottom-0 flex items-center justify-end pr-3"
-            style={{ width: `${barPct}%`, backgroundColor: 'rgba(255,255,255,0.18)' }}
-          >
-            <span className="text-xs font-semibold whitespace-nowrap" style={{ color: fg }}>
-              {timeLabel}
-            </span>
+      {/* TIME REMAINING column */}
+      <div style={{ flex: 1, display: 'flex', position: 'relative' }}>
+        {/* Elapsed portion (urgency color) */}
+        <div
+          className={anim}
+          style={{ width: `${elapsedPct * 100}%`, background: fill, flexShrink: 0, transition: 'width 0.4s ease' }}
+        />
+
+        {/* Divider tick */}
+        {elapsedPct < 1 && (
+          <div style={{ width: 3, background: 'rgba(0,0,0,0.35)', flexShrink: 0 }} />
+        )}
+
+        {/* Remaining (green) portion */}
+        {elapsedPct < 1 && (
+          <div style={{ flex: 1, background: REMAIN_COLOR, display: 'flex', alignItems: 'center', paddingLeft: 10 }}>
+            {remainLabel && (
+              <span style={{ fontSize: 11, fontWeight: 700, color: '#2E7D32', opacity: 0.85, userSelect: 'none' }}>
+                {remainLabel}
+              </span>
+            )}
           </div>
         )}
       </div>
@@ -113,10 +117,11 @@ export function ListRow({ task, onClick, dateFormat, colorScheme = 'green_urgent
       {/* Archive (complete) button */}
       <button
         onClick={e => { e.stopPropagation(); archiveTask(task.id) }}
-        className="flex items-center justify-center hover:bg-white/20 transition-colors"
+        style={{ width: 44, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0D0D1A' }}
+        className="hover:bg-white/10 transition-colors"
         aria-label="Complete task"
       >
-        <svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke={fg} strokeWidth={2.5}>
+        <svg viewBox="0 0 24 24" width={18} height={18} fill="none" stroke="#6B7280" strokeWidth={2.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
         </svg>
       </button>
