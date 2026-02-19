@@ -8,9 +8,10 @@ interface TaskModalProps {
   task?: Task | null        // null = create mode
   onClose: () => void
   googleCalendarEnabled?: boolean
+  boardId?: string | null
 }
 
-export function TaskModal({ task, onClose, googleCalendarEnabled }: TaskModalProps) {
+export function TaskModal({ task, onClose, googleCalendarEnabled, boardId }: TaskModalProps) {
   const [name, setName] = useState(task?.name ?? '')
   const [dueDate, setDueDate] = useState(task?.due_date ?? '')
   const [details, setDetails] = useState(task?.details ?? '')
@@ -38,7 +39,7 @@ export function TaskModal({ task, onClose, googleCalendarEnabled }: TaskModalPro
     if (task) {
       await updateTask(task.id, data)
     } else {
-      await createTask(data)
+      await createTask({ ...data, board_id: boardId ?? null })
     }
     setSuccess(true)
     setTimeout(onClose, 1200)

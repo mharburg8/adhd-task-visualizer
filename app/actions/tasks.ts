@@ -7,6 +7,7 @@ export async function createTask(data: {
   due_date: string | null
   details: string | null
   for_later: boolean
+  board_id?: string | null
 }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -47,6 +48,21 @@ export async function archiveTask(id: string) {
   const { error } = await supabase
     .from('tasks')
     .update({ status: 'archived', archived_at: new Date().toISOString() })
+    .eq('id', id)
+    .eq('user_id', user.id)
+  if (error) throw new Error(error.message)
+  revalidatePath('/')
+  revalidatePath('/archived')
+}
+
+export async function unarchiveTask(id: string) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
+
+  const { error } = await supabase
+    .from('tasks')
+    .update({ status: 'active', archived_at: null })
     .eq('id', id)
     .eq('user_id', user.id)
   if (error) throw new Error(error.message)

@@ -10,6 +10,7 @@ export default async function MainBoardPage() {
       .select('*')
       .eq('status', 'active')
       .eq('for_later', false)
+      .is('board_id', null)
       .order('created_at', { ascending: false }),
     supabase
       .from('settings')

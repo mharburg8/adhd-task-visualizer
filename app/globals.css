@@ -14,9 +14,9 @@
 }
 
 @keyframes float {
-  0%, 100% { transform: translate(var(--tx, 0px), var(--ty, 0px)); }
-  25%       { transform: translate(calc(var(--tx, 0px) + var(--drift-x, 6px)), calc(var(--ty, 0px) - var(--drift-y, 4px))); }
-  75%       { transform: translate(calc(var(--tx, 0px) - var(--drift-x, 6px)), calc(var(--ty, 0px) + var(--drift-y, 4px))); }
+  0%, 100% { transform: translate(0px, 0px); }
+  25%       { transform: translate(var(--drift-x, 6px), calc(-1 * var(--drift-y, 4px))); }
+  75%       { transform: translate(calc(-1 * var(--drift-x, 6px)), var(--drift-y, 4px)); }
 }
 
 @keyframes pulse-ring {
@@ -24,9 +24,19 @@
   50%       { opacity: 1.0; }
 }
 
+@keyframes bubble-pulse {
+  0%, 100% { opacity: 0.9; }
+  50%       { opacity: 0.35; }
+}
+
+.bubble-overdue {
+  animation: bubble-pulse 1.5s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .bubble-float { animation: none !important; }
-  .pulse-ring   { animation: none !important; }
+  .bubble-float  { animation: none !important; }
+  .pulse-ring    { animation: none !important; }
+  .bubble-overdue { animation: none !important; }
 }
 
 * { box-sizing: border-box; }
