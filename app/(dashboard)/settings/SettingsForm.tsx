@@ -27,7 +27,7 @@ export function SettingsForm({ settings }: { settings: Settings | null }) {
   const [defaultView, setDefaultView] = useState<'bubble' | 'list'>(settings?.default_view ?? 'bubble')
   const [voiceEnabled, setVoiceEnabled] = useState(settings?.voice_enabled ?? false)
   const [gcalEnabled, setGcalEnabled] = useState(settings?.google_calendar_enabled ?? false)
-  const [colorScheme, setColorScheme] = useState<'green_urgent' | 'red_urgent' | 'custom'>(
+  const [colorScheme, setColorScheme] = useState<'green_urgent' | 'red_urgent' | 'electric_green' | 'custom'>(
     settings?.urgency_color_scheme ?? 'green_urgent'
   )
   const [customColors, setCustomColors] = useState<CustomUrgencyColors>(
@@ -57,9 +57,10 @@ export function SettingsForm({ settings }: { settings: Settings | null }) {
   }
 
   const colorSchemeOptions = [
-    { value: 'green_urgent' as const, label: '🟢 Green urgent', desc: 'Green for far tasks, red for near tasks' },
-    { value: 'red_urgent' as const,   label: '🔴 Red urgent',   desc: 'Deep red palette throughout' },
-    { value: 'custom' as const,       label: '🎨 Custom',       desc: 'Pick your own colors for each tier' },
+    { value: 'green_urgent' as const,    label: '🔴 Default',        desc: 'Dark red for urgent → light green for safe' },
+    { value: 'electric_green' as const,  label: '⚡ Electric Green',  desc: 'Neon green for urgent → dark green for safe' },
+    { value: 'red_urgent' as const,      label: '🟫 Red palette',     desc: 'Deep red tones throughout' },
+    { value: 'custom' as const,          label: '🎨 Custom',          desc: 'Pick your own colors for each tier' },
   ]
 
   return (
@@ -169,11 +170,15 @@ export function SettingsForm({ settings }: { settings: Settings | null }) {
             <div className="flex gap-2">
               <button type="button" onClick={() => setCustomColors(getDefaultCustomColors('green_urgent'))}
                 className="text-xs px-2.5 py-1 rounded-lg border border-[var(--color-border)] hover:bg-gray-50 transition-colors">
-                Reset to Green
+                Default
+              </button>
+              <button type="button" onClick={() => setCustomColors(getDefaultCustomColors('electric_green'))}
+                className="text-xs px-2.5 py-1 rounded-lg border border-[var(--color-border)] hover:bg-gray-50 transition-colors">
+                Electric
               </button>
               <button type="button" onClick={() => setCustomColors(getDefaultCustomColors('red_urgent'))}
                 className="text-xs px-2.5 py-1 rounded-lg border border-[var(--color-border)] hover:bg-gray-50 transition-colors">
-                Reset to Red
+                Red
               </button>
             </div>
           </div>

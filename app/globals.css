@@ -26,17 +26,25 @@
 
 @keyframes bubble-pulse {
   0%, 100% { opacity: 0.9; }
-  50%       { opacity: 0.35; }
+  50%       { opacity: 0.25; }
 }
 
-.bubble-overdue {
-  animation: bubble-pulse 1.5s ease-in-out infinite;
+@keyframes bubble-pulse-fast-anim {
+  0%, 100% { opacity: 0.95; }
+  50%       { opacity: 0.45; }
 }
+
+@keyframes bubble-pulse-normal-anim {
+  0%, 100% { opacity: 0.92; }
+  50%       { opacity: 0.60; }
+}
+
+.bubble-overdue       { animation: bubble-pulse            1.2s ease-in-out infinite; }
+.bubble-pulse-fast    { animation: bubble-pulse-fast-anim  0.7s ease-in-out infinite; }
+.bubble-pulse-normal  { animation: bubble-pulse-normal-anim 1.4s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .bubble-float  { animation: none !important; }
-  .pulse-ring    { animation: none !important; }
-  .bubble-overdue { animation: none !important; }
+  .bubble-overdue, .bubble-pulse-fast, .bubble-pulse-normal { animation: none !important; }
 }
 
 * { box-sizing: border-box; }

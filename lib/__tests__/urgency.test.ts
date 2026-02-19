@@ -26,10 +26,22 @@ describe('getUrgencyInfo', () => {
     expect(result.ringProgress).toBe(0)
   })
 
-  it('returns red_1 when due_date is 1 day away', () => {
-    // Feb 19 is 1 day from Feb 18 → red_1
+  it('returns red_2 when due_date is 1 day away', () => {
+    // Feb 19 is 1 day from Feb 18 → red_2 (0–2 days)
     const result = getUrgencyInfo({
       due_date: '2026-02-19',
+      for_later: false,
+      created_at: '2026-02-01T00:00:00Z',
+      today: TODAY,
+    })
+    expect(result.level).toBe('red_2')
+    expect(result.score).toBe(0.90)
+  })
+
+  it('returns red_1 when due in 3–4 days', () => {
+    // Feb 22 is 4 days from Feb 18 → red_1 (3–4 days)
+    const result = getUrgencyInfo({
+      due_date: '2026-02-22',
       for_later: false,
       created_at: '2026-02-01T00:00:00Z',
       today: TODAY,
@@ -38,28 +50,16 @@ describe('getUrgencyInfo', () => {
     expect(result.score).toBe(0.80)
   })
 
-  it('returns orange_2 when due in 3–4 days', () => {
-    // Feb 22 is 4 days from Feb 18 → orange_2
-    const result = getUrgencyInfo({
-      due_date: '2026-02-22',
-      for_later: false,
-      created_at: '2026-02-01T00:00:00Z',
-      today: TODAY,
-    })
-    expect(result.level).toBe('orange_2')
-    expect(result.score).toBe(0.70)
-  })
-
-  it('returns yellow_1 when due in 10–14 days', () => {
-    // Feb 28 is 10 days from Feb 18 → yellow_1
+  it('returns yellow_2 when due in 9–11 days', () => {
+    // Feb 28 is 10 days from Feb 18 → yellow_2 (9–11 days)
     const result = getUrgencyInfo({
       due_date: '2026-02-28',
       for_later: false,
       created_at: '2026-02-01T00:00:00Z',
       today: TODAY,
     })
-    expect(result.level).toBe('yellow_1')
-    expect(result.score).toBe(0.40)
+    expect(result.level).toBe('yellow_2')
+    expect(result.score).toBe(0.50)
   })
 
   it('returns green_3 when due in 15–21 days', () => {

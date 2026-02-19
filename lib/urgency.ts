@@ -8,34 +8,52 @@ type TierConfig = {
   score: number
 }
 
+// Default: dark red = urgent, light green = safe
 const TIER_CONFIG_GREEN_URGENT: Record<UrgencyLevel, TierConfig> = {
-  overdue:   { fill: '#FF8A80', border: '#E53935', text: '#4E1E18', score: 1.00 },  // coral
-  red_2:     { fill: '#FFAB76', border: '#FF6D00', text: '#4A1800', score: 0.90 },  // coral→amber
-  red_1:     { fill: '#FFD180', border: '#FF9800', text: '#4A1800', score: 0.80 },  // amber
-  orange_2:  { fill: '#FFE082', border: '#FFB300', text: '#4A1800', score: 0.70 },  // golden
-  orange_1:  { fill: '#DCEDC8', border: '#AED581', text: '#1B5E20', score: 0.60 },  // pale mint
-  yellow_2:  { fill: '#B9F6CA', border: '#69F0AE', text: '#1B5E20', score: 0.50 },  // mint green
-  yellow_1:  { fill: '#A5D6A7', border: '#66BB6A', text: '#1B5E20', score: 0.40 },  // soft green
-  green_3:   { fill: '#80DEEA', border: '#26C6DA', text: '#004D40', score: 0.30 },  // aqua
-  green_2:   { fill: '#80D8FF', border: '#40C4FF', text: '#01579B', score: 0.20 },  // sky blue
-  green_1:   { fill: '#B3E5FC', border: '#81D4FA', text: '#01579B', score: 0.10 },  // light blue
+  overdue:   { fill: '#5C0000', border: '#8B0000', text: '#FFB3B3', score: 1.00 },  // dark red
+  red_2:     { fill: '#CC0000', border: '#990000', text: '#FFFFFF', score: 0.90 },  // red (0-2 days)
+  red_1:     { fill: '#FF5555', border: '#CC2222', text: '#FFFFFF', score: 0.80 },  // light red (3-4 days)
+  orange_2:  { fill: '#CC4400', border: '#993300', text: '#FFFFFF', score: 0.70 },  // dark orange (5-6 days)
+  orange_1:  { fill: '#FF6600', border: '#CC4400', text: '#FFFFFF', score: 0.60 },  // orange (7-8 days)
+  yellow_2:  { fill: '#AA8800', border: '#886600', text: '#FFFFFF', score: 0.50 },  // dark yellow (9-11 days)
+  yellow_1:  { fill: '#FFEE55', border: '#CCBB00', text: '#3D3300', score: 0.40 },  // light yellow (12-15 days)
+  green_3:   { fill: '#1A6622', border: '#0F4418', text: '#AAFFAA', score: 0.30 },  // dark green (16-20 days)
+  green_2:   { fill: '#44AA44', border: '#338833', text: '#FFFFFF', score: 0.20 },  // light green (21-30 days)
+  green_1:   { fill: '#77CC77', border: '#55AA55', text: '#1A3D20', score: 0.10 },  // lighter green (30+)
   for_later: { fill: '#CE93D8', border: '#AB47BC', text: '#4A148C', score: 0.00 },  // lavender
-  no_date:   { fill: '#B3E5FC', border: '#81D4FA', text: '#01579B', score: 0.10 },  // light blue
+  no_date:   { fill: '#B3E5FC', border: '#81D4FA', text: '#01579B', score: 0.10 },  // sky blue
 }
 
-const TIER_CONFIG_RED_URGENT: Record<UrgencyLevel, TierConfig> = {
-  overdue:   { fill: '#B71C1C', border: '#7F0000', text: '#FFFFFF', score: 1.00 },
-  red_2:     { fill: '#C62828', border: '#B71C1C', text: '#FFFFFF', score: 0.90 },
-  red_1:     { fill: '#EF5350', border: '#E53935', text: '#FFFFFF', score: 0.80 },
-  orange_2:  { fill: '#FF7043', border: '#F4511E', text: '#FFFFFF', score: 0.70 },
-  orange_1:  { fill: '#FF8A65', border: '#FF7043', text: '#BF360C', score: 0.60 },
-  yellow_2:  { fill: '#FFEE58', border: '#FDD835', text: '#5D3A00', score: 0.50 },
-  yellow_1:  { fill: '#FFF9C4', border: '#FFF176', text: '#6B5E00', score: 0.40 },
-  green_3:   { fill: '#A5D6A7', border: '#66BB6A', text: '#1B5E20', score: 0.30 },
-  green_2:   { fill: '#C8E6C9', border: '#81C784', text: '#1B5E20', score: 0.20 },
-  green_1:   { fill: '#E8F5E9', border: '#A5D6A7', text: '#1B5E20', score: 0.10 },
+// Flipped: electric/neon green = most urgent, dark green = safe
+const TIER_CONFIG_ELECTRIC_GREEN: Record<UrgencyLevel, TierConfig> = {
+  overdue:   { fill: '#39FF14', border: '#00DD00', text: '#003300', score: 1.00 },  // neon green
+  red_2:     { fill: '#00EE33', border: '#00BB22', text: '#002200', score: 0.90 },  // bright green
+  red_1:     { fill: '#00CC33', border: '#009922', text: '#002200', score: 0.80 },  // medium-bright green
+  orange_2:  { fill: '#00AA22', border: '#008818', text: '#CCFFCC', score: 0.70 },  // medium green
+  orange_1:  { fill: '#008818', border: '#006611', text: '#AAFFAA', score: 0.60 },  // medium-dark green
+  yellow_2:  { fill: '#006611', border: '#004A0C', text: '#88FF88', score: 0.50 },  // darker green
+  yellow_1:  { fill: '#004A0C', border: '#003308', text: '#77DD77', score: 0.40 },  // dark green
+  green_3:   { fill: '#003308', border: '#002205', text: '#66CC66', score: 0.30 },  // very dark green
+  green_2:   { fill: '#002205', border: '#001103', text: '#55BB55', score: 0.20 },  // near-black green
+  green_1:   { fill: '#001103', border: '#000A02', text: '#44AA44', score: 0.10 },  // darkest green
   for_later: { fill: '#CE93D8', border: '#AB47BC', text: '#4A148C', score: 0.00 },
-  no_date:   { fill: '#B3E5FC', border: '#81D4FA', text: '#0277BD', score: 0.10 },
+  no_date:   { fill: '#B3E5FC', border: '#81D4FA', text: '#01579B', score: 0.10 },
+}
+
+// Legacy red palette (kept for backwards compat)
+const TIER_CONFIG_RED_URGENT: Record<UrgencyLevel, TierConfig> = {
+  overdue:   { fill: '#3D0000', border: '#7F0000', text: '#FFFFFF', score: 1.00 },
+  red_2:     { fill: '#7A0000', border: '#B71C1C', text: '#FFFFFF', score: 0.90 },
+  red_1:     { fill: '#C62828', border: '#E53935', text: '#FFFFFF', score: 0.80 },
+  orange_2:  { fill: '#BF360C', border: '#E64A19', text: '#FFFFFF', score: 0.70 },
+  orange_1:  { fill: '#E64A19', border: '#FF5722', text: '#FFFFFF', score: 0.60 },
+  yellow_2:  { fill: '#FF8F00', border: '#FFA000', text: '#3D2800', score: 0.50 },
+  yellow_1:  { fill: '#FFB300', border: '#FFC107', text: '#3D2800', score: 0.40 },
+  green_3:   { fill: '#795548', border: '#5D4037', text: '#FFCCBC', score: 0.30 },
+  green_2:   { fill: '#6D4C41', border: '#4E342E', text: '#FFCCBC', score: 0.20 },
+  green_1:   { fill: '#4E342E', border: '#3E2723', text: '#FFCCBC', score: 0.10 },
+  for_later: { fill: '#CE93D8', border: '#AB47BC', text: '#4A148C', score: 0.00 },
+  no_date:   { fill: '#B3E5FC', border: '#81D4FA', text: '#01579B', score: 0.10 },
 }
 
 function clamp(value: number, min: number, max: number) {
@@ -52,9 +70,12 @@ function buildCustomConfig(custom: CustomUrgencyColors): Record<UrgencyLevel, Ti
 }
 
 export function getDefaultCustomColors(
-  scheme: 'green_urgent' | 'red_urgent' = 'green_urgent'
+  scheme: 'green_urgent' | 'red_urgent' | 'electric_green' = 'green_urgent'
 ): CustomUrgencyColors {
-  const cfg = scheme === 'red_urgent' ? TIER_CONFIG_RED_URGENT : TIER_CONFIG_GREEN_URGENT
+  const cfg =
+    scheme === 'red_urgent' ? TIER_CONFIG_RED_URGENT :
+    scheme === 'electric_green' ? TIER_CONFIG_ELECTRIC_GREEN :
+    TIER_CONFIG_GREEN_URGENT
   return Object.fromEntries(
     (Object.keys(cfg) as UrgencyLevel[]).map(k => [
       k,
@@ -65,15 +86,15 @@ export function getDefaultCustomColors(
 
 function classifyLevel(daysRemaining: number): UrgencyLevel {
   if (daysRemaining < 0)   return 'overdue'
-  if (daysRemaining === 0) return 'red_2'
-  if (daysRemaining <= 2)  return 'red_1'
-  if (daysRemaining <= 4)  return 'orange_2'
-  if (daysRemaining <= 6)  return 'orange_1'
-  if (daysRemaining <= 9)  return 'yellow_2'
-  if (daysRemaining <= 14) return 'yellow_1'
-  if (daysRemaining <= 21) return 'green_3'
-  if (daysRemaining <= 30) return 'green_2'
-  return 'green_1'
+  if (daysRemaining <= 2)  return 'red_2'     // 0–2 days: red, fast pulse
+  if (daysRemaining <= 4)  return 'red_1'     // 3–4 days: light red, normal pulse
+  if (daysRemaining <= 6)  return 'orange_2'  // 5–6 days: dark orange
+  if (daysRemaining <= 8)  return 'orange_1'  // 7–8 days: orange
+  if (daysRemaining <= 11) return 'yellow_2'  // 9–11 days: dark yellow
+  if (daysRemaining <= 15) return 'yellow_1'  // 12–15 days: light yellow
+  if (daysRemaining <= 20) return 'green_3'   // 16–20 days: dark green
+  if (daysRemaining <= 30) return 'green_2'   // 21–30 days: light green
+  return 'green_1'                             // 30+ days: lighter green
 }
 
 export function getUrgencyInfo({
@@ -88,7 +109,7 @@ export function getUrgencyInfo({
   for_later: boolean
   created_at: string
   today?: Date
-  colorScheme?: 'green_urgent' | 'red_urgent' | 'custom'
+  colorScheme?: 'green_urgent' | 'red_urgent' | 'electric_green' | 'custom'
   customColors?: CustomUrgencyColors
 }): UrgencyInfo {
   const TIER_CONFIG =
@@ -96,7 +117,9 @@ export function getUrgencyInfo({
       ? buildCustomConfig(customColors)
       : colorScheme === 'red_urgent'
         ? TIER_CONFIG_RED_URGENT
-        : TIER_CONFIG_GREEN_URGENT
+        : colorScheme === 'electric_green'
+          ? TIER_CONFIG_ELECTRIC_GREEN
+          : TIER_CONFIG_GREEN_URGENT
 
   const todayStart = startOfDay(today)
 

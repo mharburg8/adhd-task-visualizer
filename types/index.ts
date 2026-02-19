@@ -60,6 +60,6 @@ export interface Settings {
   theme: 'light' | 'dark'
   default_view: 'bubble' | 'list'
   voice_enabled: boolean
-  urgency_color_scheme: 'green_urgent' | 'red_urgent' | 'custom'
+  urgency_color_scheme: 'green_urgent' | 'red_urgent' | 'electric_green' | 'custom'
   custom_urgency_colors: CustomUrgencyColors | null
 }

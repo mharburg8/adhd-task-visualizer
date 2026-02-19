@@ -8,7 +8,7 @@ interface ListRowProps {
   task: Task
   onClick: (task: Task) => void
   dateFormat: string
-  colorScheme?: 'green_urgent' | 'red_urgent' | 'custom'
+  colorScheme?: 'green_urgent' | 'red_urgent' | 'electric_green' | 'custom'
   customColors?: CustomUrgencyColors
 }
 

@@ -2,7 +2,6 @@ interface RadialRingTimerProps {
   diameter: number
   ringProgress: number   // 0.0–1.0
   color: string
-  isOverdue: boolean
   strokeWidth?: number
 }
 
@@ -10,40 +9,46 @@ export function RadialRingTimer({
   diameter,
   ringProgress,
   color,
-  isOverdue,
   strokeWidth,
 }: RadialRingTimerProps) {
-  if (ringProgress === 0 && !isOverdue) return null
+  if (ringProgress <= 0) return null
 
   const sw = strokeWidth ?? (diameter >= 160 ? 6 : 4)
-  const gap = 4  // gap between bubble edge and ring
-  const radius = diameter / 2 - sw / 2 - gap
-  const circumference = 2 * Math.PI * radius
+  const gap = 6                          // gap between bubble edge and ring
+  const ringRadius = diameter / 2 + gap + sw / 2   // ring sits OUTSIDE the bubble
+  const svgSize = Math.ceil(diameter + (gap + sw + 2) * 2)
+  const cx = svgSize / 2
+  const cy = svgSize / 2
+  const offset = (svgSize - diameter) / 2
+
+  const circumference = 2 * Math.PI * ringRadius
   const strokeDashoffset = circumference * (1 - ringProgress)
 
   return (
     <svg
-      width={diameter}
-      height={diameter}
-      className="absolute inset-0 pointer-events-none"
-      style={{ transform: 'rotate(-90deg)' }}
+      width={svgSize}
+      height={svgSize}
+      style={{
+        position: 'absolute',
+        top: -offset,
+        left: -offset,
+        pointerEvents: 'none',
+        zIndex: 1,
+        transform: 'rotate(-90deg)',
+        transformOrigin: `${cx}px ${cy}px`,
+      }}
     >
-      {/* Track ring (ghost) */}
+      {/* Ghost track */}
       <circle
-        cx={diameter / 2}
-        cy={diameter / 2}
-        r={radius}
+        cx={cx} cy={cy} r={ringRadius}
         fill="none"
         stroke={color}
         strokeWidth={sw}
-        opacity={0.15}
+        opacity={0.2}
       />
       {/* Progress ring */}
       <circle
-        className={`ring-progress${isOverdue ? ' pulse-ring' : ''}`}
-        cx={diameter / 2}
-        cy={diameter / 2}
-        r={radius}
+        cx={cx} cy={cy} r={ringRadius}
         fill="none"
         stroke={color}
         strokeWidth={sw}

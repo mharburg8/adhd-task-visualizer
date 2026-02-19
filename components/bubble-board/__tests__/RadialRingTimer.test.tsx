@@ -2,43 +2,46 @@ import { render } from '@testing-library/react'
 import { RadialRingTimer } from '../RadialRingTimer'
 
 describe('RadialRingTimer', () => {
-  it('renders an SVG circle with correct stroke-dashoffset for 50% progress', () => {
+  it('renders an SVG with correct stroke-dashoffset for 50% progress', () => {
+    const diameter = 120
     const { container } = render(
       <RadialRingTimer
-        diameter={120}
+        diameter={diameter}
         ringProgress={0.5}
         color="var(--color-upcoming)"
-        isOverdue={false}
       />
     )
-    const circle = container.querySelector('circle.ring-progress')
-    expect(circle).toBeInTheDocument()
-    const circumference = 2 * Math.PI * (60 - 2 - 4)  // radius = diameter/2 - sw/2 - gap (sw=4 for diameter<160)
+    const svg = container.querySelector('svg')
+    expect(svg).toBeInTheDocument()
+    // Ring sits OUTSIDE: radius = diameter/2 + gap(6) + sw/2(2) = 60 + 6 + 2 = 68
+    const sw = 4  // diameter < 160
+    const gap = 6
+    const ringRadius = diameter / 2 + gap + sw / 2
+    const circumference = 2 * Math.PI * ringRadius
     const expectedOffset = circumference * (1 - 0.5)
-    expect(circle).toHaveAttribute('stroke-dasharray', String(circumference))
-    expect(circle).toHaveAttribute('stroke-dashoffset', String(expectedOffset))
+    const circles = container.querySelectorAll('circle')
+    const progressCircle = circles[1]  // second circle is the progress ring
+    expect(progressCircle).toHaveAttribute('stroke-dasharray', String(circumference))
+    expect(progressCircle).toHaveAttribute('stroke-dashoffset', String(expectedOffset))
   })
 
-  it('applies pulse-ring class when isOverdue is true', () => {
-    const { container } = render(
-      <RadialRingTimer
-        diameter={120}
-        ringProgress={0}
-        color="var(--color-overdue)"
-        isOverdue={true}
-      />
-    )
-    const circle = container.querySelector('circle.ring-progress')
-    expect(circle?.getAttribute('class')).toContain('pulse-ring')
-  })
-
-  it('renders nothing when ringProgress is 0 and not overdue', () => {
+  it('renders nothing when ringProgress is 0', () => {
     const { container } = render(
       <RadialRingTimer
         diameter={120}
         ringProgress={0}
         color="var(--color-upcoming)"
-        isOverdue={false}
+      />
+    )
+    expect(container.querySelector('svg')).not.toBeInTheDocument()
+  })
+
+  it('renders nothing when ringProgress is negative', () => {
+    const { container } = render(
+      <RadialRingTimer
+        diameter={120}
+        ringProgress={-0.1}
+        color="var(--color-upcoming)"
       />
     )
     expect(container.querySelector('svg')).not.toBeInTheDocument()

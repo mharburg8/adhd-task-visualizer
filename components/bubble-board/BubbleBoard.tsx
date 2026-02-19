@@ -13,7 +13,7 @@ interface BubblePosition {
 interface BubbleBoardProps {
   tasks: Task[]
   onTaskClick: (task: Task) => void
-  colorScheme?: 'green_urgent' | 'red_urgent' | 'custom'
+  colorScheme?: 'green_urgent' | 'red_urgent' | 'electric_green' | 'custom'
   customColors?: CustomUrgencyColors
 }
 
