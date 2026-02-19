@@ -10,15 +10,44 @@ interface BubbleCardProps {
   onClick: (task: Task) => void
   colorScheme?: 'green_urgent' | 'red_urgent' | 'custom'
   customColors?: CustomUrgencyColors
+  isSpiky?: boolean
 }
 
-function seededRandom(seed: string, index: number) {
-  let h = 0
-  for (let i = 0; i < seed.length; i++) h = (Math.imul(31, h) + seed.charCodeAt(i)) | 0
-  return Math.abs(Math.sin(h + index) * 10000) % 1
+function StarBurst({ diameter }: { diameter: number }) {
+  const r = diameter / 2
+  const spikes = 20
+  const spikeLen = Math.max(14, r * 0.38)
+  const outerR = r + spikeLen
+  const innerR = r + 4
+  const cx = outerR
+  const cy = outerR
+  const svgSize = outerR * 2
+
+  const pts: string[] = []
+  for (let i = 0; i < spikes * 2; i++) {
+    const angle = (i / (spikes * 2)) * Math.PI * 2 - Math.PI / 2
+    const rad = i % 2 === 0 ? outerR : innerR
+    pts.push(`${(cx + rad * Math.cos(angle)).toFixed(1)},${(cy + rad * Math.sin(angle)).toFixed(1)}`)
+  }
+
+  return (
+    <svg
+      style={{
+        position: 'absolute',
+        top: -spikeLen,
+        left: -spikeLen,
+        width: svgSize,
+        height: svgSize,
+        zIndex: 0,
+        pointerEvents: 'none',
+      }}
+    >
+      <polygon points={pts.join(' ')} fill="#FFD700" />
+    </svg>
+  )
 }
 
-export function BubbleCard({ task, onClick, colorScheme = 'green_urgent', customColors }: BubbleCardProps) {
+export function BubbleCard({ task, onClick, colorScheme = 'green_urgent', customColors, isSpiky }: BubbleCardProps) {
   const urgency = useMemo(
     () => getUrgencyInfo({
       due_date: task.due_date,
@@ -30,30 +59,28 @@ export function BubbleCard({ task, onClick, colorScheme = 'green_urgent', custom
     [task.due_date, task.for_later, task.created_at, colorScheme, customColors]
   )
 
-  const floatDuration = useMemo(() => 3 + seededRandom(task.id, 0) * 3, [task.id])
-  const driftX = useMemo(() => 4 + seededRandom(task.id, 1) * 8, [task.id])
-  const driftY = useMemo(() => 3 + seededRandom(task.id, 2) * 6, [task.id])
-
   const { diameter, color, borderColor, textColor, level } = urgency
   const isOverdue = level === 'overdue'
 
   return (
     <div
-      className={`group ${isOverdue ? 'bubble-overdue' : 'bubble-float'}`}
+      className={`group ${isOverdue ? 'bubble-overdue' : ''}`}
       style={{
         position: 'relative',
         width: diameter,
         height: diameter,
-        '--drift-x': `${driftX}px`,
-        '--drift-y': `${driftY}px`,
-        ...(isOverdue ? {} : { animation: `float ${floatDuration}s ease-in-out infinite` }),
-      } as React.CSSProperties}
+      }}
     >
+      {/* Yellow spikes behind the bubble */}
+      {isSpiky && <StarBurst diameter={diameter} />}
+
       {/* Main bubble */}
       <button
         onClick={() => onClick(task)}
         className="w-full h-full rounded-full flex items-center justify-center text-center cursor-pointer hover:scale-105 transition-transform focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-upcoming)]"
         style={{
+          position: 'relative',
+          zIndex: 1,
           backgroundColor: color,
           opacity: 0.9,
           border: `2px solid ${borderColor}`,
@@ -79,10 +106,15 @@ export function BubbleCard({ task, onClick, colorScheme = 'green_urgent', custom
         </span>
       </button>
 
-      {/* Hover checkmark — completes (archives) the task */}
+      {/* Checkmark — archives task, centered near bottom of bubble */}
       <button
         onClick={e => { e.stopPropagation(); archiveTask(task.id) }}
-        className="absolute top-1 right-1 z-20 w-7 h-7 rounded-full bg-white/90 border border-gray-200 hidden group-hover:flex items-center justify-center transition-colors hover:bg-green-50 hover:border-green-300"
+        className="absolute z-20 w-8 h-8 rounded-full bg-white/90 border border-gray-200 hidden group-hover:flex items-center justify-center transition-colors hover:bg-green-50 hover:border-green-300"
+        style={{
+          bottom: Math.round(diameter * 0.18),
+          left: '50%',
+          transform: 'translateX(-50%)',
+        }}
         aria-label="Complete task"
       >
         <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="#16a34a" strokeWidth={2.5}>

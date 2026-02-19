@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { Task } from '@/types'
-import { ListRow } from './ListRow'
+import { archiveTask } from '@/app/actions/tasks'
 import { TaskModal } from '@/components/modals/TaskModal'
 
 interface ForLaterClientProps {
@@ -43,9 +43,30 @@ export function ForLaterClient({ initialTasks }: ForLaterClientProps) {
             <p className="text-sm text-[var(--color-text-muted)] mt-1">Add tasks with "Park it for later" toggled on</p>
           </div>
         ) : (
-          <div className="p-4">
+          <div className="p-4 space-y-2">
             {tasks.map(task => (
-              <ListRow key={task.id} task={task} onClick={setSelectedTask} dateFormat="MM/DD/YYYY" />
+              <div
+                key={task.id}
+                className="bg-white rounded-xl border border-[var(--color-border)] px-4 py-3 flex items-center gap-3 hover:shadow-sm transition-shadow cursor-pointer"
+                onClick={() => setSelectedTask(task)}
+              >
+                <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: '#CE93D8' }} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{task.name}</p>
+                  {task.details && (
+                    <p className="text-xs text-[var(--color-text-muted)] mt-0.5 truncate">{task.details}</p>
+                  )}
+                </div>
+                <button
+                  onClick={e => { e.stopPropagation(); archiveTask(task.id) }}
+                  className="shrink-0 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-green-100 hover:border-green-300 border border-gray-200 transition-colors"
+                  aria-label="Complete task"
+                >
+                  <svg viewBox="0 0 24 24" width={16} height={16} fill="none" stroke="#16a34a" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </button>
+              </div>
             ))}
           </div>
         )}

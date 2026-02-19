@@ -45,7 +45,6 @@ function separateBubbles(
           const nx = dist > 0 ? dx / dist : 1
           const ny = dist > 0 ? dy / dist : 0
           if (i === 0) {
-            // Pin the center bubble — push j the full amount
             result[j].x += nx * push
             result[j].y += ny * push
           } else {
@@ -55,7 +54,6 @@ function separateBubbles(
             result[j].x += nx * half
             result[j].y += ny * half
           }
-          // Clamp to viewport
           if (i > 0) {
             result[i].x = Math.max(0, Math.min(width - ri * 2, result[i].x))
             result[i].y = Math.max(0, Math.min(height - ri * 2, result[i].y))
@@ -107,6 +105,13 @@ export function BubbleBoard({ tasks, onTaskClick, colorScheme = 'green_urgent', 
   const containerRef = useRef<HTMLDivElement>(null)
   const [positions, setPositions] = useState<BubblePosition[]>([])
 
+  // Determine which task IDs are overdue (they get spikes)
+  const overdueIds = new Set(
+    tasks
+      .filter(t => getUrgencyInfo({ due_date: t.due_date, for_later: t.for_later, created_at: t.created_at }).level === 'overdue')
+      .map(t => t.id)
+  )
+
   const recalculate = useCallback(() => {
     if (!containerRef.current) return
     const { offsetWidth: w, offsetHeight: h } = containerRef.current
@@ -141,7 +146,13 @@ export function BubbleBoard({ tasks, onTaskClick, colorScheme = 'green_urgent', 
             key={task.id}
             style={{ position: 'absolute', left: pos.x, top: pos.y }}
           >
-            <BubbleCard task={task} onClick={onTaskClick} colorScheme={colorScheme} customColors={customColors} />
+            <BubbleCard
+              task={task}
+              onClick={onTaskClick}
+              colorScheme={colorScheme}
+              customColors={customColors}
+              isSpiky={overdueIds.has(task.id)}
+            />
           </div>
         )
       })}
