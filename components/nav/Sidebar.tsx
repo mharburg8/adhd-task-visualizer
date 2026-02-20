@@ -21,7 +21,7 @@ export function Sidebar({ initialBoards }: SidebarProps) {
   const router = useRouter()
   const supabase = createClient()
 
-  const [boards, setBoards] = useState<Board[]>(initialBoards)
+  const [boards, setBoards] = useState<Board[]>(initialBoards ?? [])
   const [isCreating, setIsCreating] = useState(false)
   const [newBoardName, setNewBoardName] = useState('')
   const [renamingId, setRenamingId] = useState<string | null>(null)
