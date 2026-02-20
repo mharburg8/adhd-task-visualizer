@@ -9,9 +9,10 @@ interface TaskModalProps {
   onClose: () => void
   googleCalendarEnabled?: boolean
   boardId?: string | null
+  onTaskCreated?: (task: Task) => void
 }
 
-export function TaskModal({ task, onClose, googleCalendarEnabled, boardId }: TaskModalProps) {
+export function TaskModal({ task, onClose, googleCalendarEnabled, boardId, onTaskCreated }: TaskModalProps) {
   const [name, setName] = useState(task?.name ?? '')
   const [dueDate, setDueDate] = useState(task?.due_date ?? '')
   const [details, setDetails] = useState(task?.details ?? '')
@@ -36,7 +37,8 @@ export function TaskModal({ task, onClose, googleCalendarEnabled, boardId }: Tas
     if (task) {
       await updateTask(task.id, data)
     } else {
-      await createTask({ ...data, board_id: boardId ?? null })
+      const created = await createTask({ ...data, board_id: boardId ?? null })
+      if (onTaskCreated) onTaskCreated(created)
     }
     setSuccess(true)
     setTimeout(onClose, 1200)
@@ -48,13 +50,14 @@ export function TaskModal({ task, onClose, googleCalendarEnabled, boardId }: Tas
       return
     }
     setLoading(true)
-    await createTask({
+    const created = await createTask({
       name,
       due_date: dueDate || null,
       details: details || null,
       for_later: forLater,
       board_id: boardId ?? null,
     })
+    if (onTaskCreated) onTaskCreated(created)
     setLoading(false)
     setName('')
     setDueDate('')

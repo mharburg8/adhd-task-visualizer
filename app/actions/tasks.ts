@@ -1,6 +1,7 @@
 'use server'
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
+import type { Task } from '@/types'
 
 export async function createTask(data: {
   name: string
@@ -8,17 +9,18 @@ export async function createTask(data: {
   details: string | null
   for_later: boolean
   board_id?: string | null
-}) {
+}): Promise<Task> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) throw new Error('Not authenticated')
 
-  const { error } = await supabase.from('tasks').insert({
+  const { data: created, error } = await supabase.from('tasks').insert({
     ...data,
     user_id: user.id,
-  })
+  }).select().single()
   if (error) throw new Error(error.message)
   revalidatePath('/')
+  return created as Task
 }
 
 export async function updateTask(id: string, data: {

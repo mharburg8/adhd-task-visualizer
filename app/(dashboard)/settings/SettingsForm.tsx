@@ -5,6 +5,7 @@ import type { Settings, CustomUrgencyColors, UrgencyLevel } from '@/types'
 import { updateSettings, deleteAccountAndData } from '@/app/actions/settings'
 import { getDefaultCustomColors } from '@/lib/urgency'
 import { createClient } from '@/lib/supabase/client'
+import { ThemeApplier } from '@/components/ThemeApplier'
 
 const TIER_LABELS: { level: UrgencyLevel; label: string }[] = [
   { level: 'overdue',   label: 'Overdue' },
@@ -78,6 +79,7 @@ export function SettingsForm({ settings }: { settings: Settings | null }) {
 
   return (
     <div className="space-y-6">
+      <ThemeApplier theme={theme} />
       {/* Auto-archive */}
       <div className="bg-white rounded-xl border border-[var(--color-border)] p-5">
         <label className="block text-sm font-medium mb-1">Auto-archive after</label>

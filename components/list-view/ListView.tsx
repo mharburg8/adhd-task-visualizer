@@ -14,24 +14,30 @@ interface ListViewProps {
 }
 
 export function ListView({ tasks, onTaskClick, dateFormat, colorScheme = 'green_urgent', customColors }: ListViewProps) {
-  const [completingIds, setCompletingIds] = useState<Set<string>>(new Set())
+  const [completingSnaps, setCompletingSnaps] = useState<Map<string, Task>>(new Map())
+  const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set())
 
-  const sorted = [...tasks].sort((a, b) => {
+  // Merge live tasks with any completing tasks that Realtime may have already removed
+  const merged = [
+    ...tasks.filter(t => !hiddenIds.has(t.id)),
+    ...[...completingSnaps.values()].filter(t => !tasks.some(tt => tt.id === t.id) && !hiddenIds.has(t.id)),
+  ]
+
+  const sorted = merged.sort((a, b) => {
     const scoreA = getUrgencyInfo({ due_date: a.due_date, for_later: a.for_later, created_at: a.created_at, colorScheme, customColors }).score
     const scoreB = getUrgencyInfo({ due_date: b.due_date, for_later: b.for_later, created_at: b.created_at, colorScheme, customColors }).score
     return scoreB - scoreA
   })
 
   function handleComplete(id: string) {
-    setCompletingIds(prev => new Set(prev).add(id))
+    const task = tasks.find(t => t.id === id)
+    if (!task) return
+    setCompletingSnaps(prev => new Map(prev).set(id, task))
     setTimeout(() => {
+      setHiddenIds(prev => new Set(prev).add(id))
+      setCompletingSnaps(prev => { const n = new Map(prev); n.delete(id); return n })
       archiveTask(id)
-      setCompletingIds(prev => {
-        const next = new Set(prev)
-        next.delete(id)
-        return next
-      })
-    }, 350)
+    }, 380)
   }
 
   if (sorted.length === 0) {
@@ -66,7 +72,7 @@ export function ListView({ tasks, onTaskClick, dateFormat, colorScheme = 'green_
           dateFormat={dateFormat}
           colorScheme={colorScheme}
           customColors={customColors}
-          completing={completingIds.has(task.id)}
+          completing={completingSnaps.has(task.id)}
         />
       ))}
     </div>

@@ -12,6 +12,8 @@ interface ForLaterClientProps {
 export function ForLaterClient({ initialTasks }: ForLaterClientProps) {
   const [tasks, setTasks] = useState<Task[]>(initialTasks)
   const [selectedTask, setSelectedTask] = useState<Task | null | undefined>(undefined)
+  const [completingIds, setCompletingIds] = useState<Set<string>>(new Set())
+  const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set())
   const supabase = createClient()
 
   useEffect(() => {
@@ -33,10 +35,21 @@ export function ForLaterClient({ initialTasks }: ForLaterClientProps) {
     return () => { supabase.removeChannel(channel) }
   }, [])
 
+  function handleComplete(id: string) {
+    setCompletingIds(prev => new Set(prev).add(id))
+    setTimeout(() => {
+      setHiddenIds(prev => new Set(prev).add(id))
+      setCompletingIds(prev => { const n = new Set(prev); n.delete(id); return n })
+      archiveTask(id)
+    }, 300)
+  }
+
+  const visibleTasks = tasks.filter(task => !hiddenIds.has(task.id))
+
   return (
     <>
       <div className="flex-1 overflow-auto">
-        {tasks.length === 0 ? (
+        {visibleTasks.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <p className="text-4xl mb-4">🪴</p>
             <p className="text-lg font-medium">Nothing parked here yet</p>
@@ -44,21 +57,18 @@ export function ForLaterClient({ initialTasks }: ForLaterClientProps) {
           </div>
         ) : (
           <div className="p-4 space-y-2">
-            {tasks.map(task => (
+            {visibleTasks.map(task => (
               <div
                 key={task.id}
                 className="bg-white rounded-xl border border-[var(--color-border)] px-4 py-3 flex items-center gap-3 hover:shadow-sm transition-shadow cursor-pointer"
+                style={{
+                  opacity: completingIds.has(task.id) ? 0 : 1,
+                  transition: 'opacity 0.3s ease',
+                }}
                 onClick={() => setSelectedTask(task)}
               >
-                <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: '#CE93D8' }} />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{task.name}</p>
-                  {task.details && (
-                    <p className="text-xs text-[var(--color-text-muted)] mt-0.5 truncate">{task.details}</p>
-                  )}
-                </div>
                 <button
-                  onClick={e => { e.stopPropagation(); archiveTask(task.id) }}
+                  onClick={e => { e.stopPropagation(); handleComplete(task.id) }}
                   className="shrink-0 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-green-100 hover:border-green-300 border border-gray-200 transition-colors"
                   aria-label="Complete task"
                 >
@@ -66,6 +76,13 @@ export function ForLaterClient({ initialTasks }: ForLaterClientProps) {
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 </button>
+                <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: '#CE93D8' }} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{task.name}</p>
+                  {task.details && (
+                    <p className="text-xs text-[var(--color-text-muted)] mt-0.5 truncate">{task.details}</p>
+                  )}
+                </div>
               </div>
             ))}
           </div>

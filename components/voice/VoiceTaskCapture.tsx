@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react'
 import { format, parseISO } from 'date-fns'
 import { parseVoiceInput } from '@/lib/voice-parser'
 import { createTask } from '@/app/actions/tasks'
+import type { Task } from '@/types'
 
 interface QueuedTask {
   tempId: string
@@ -14,7 +15,7 @@ interface QueuedTask {
 interface VoiceTaskCaptureProps {
   boardId: string | undefined
   onClose: () => void
-  onSaved: () => void
+  onSaved: (tasks: Task[]) => void
 }
 
 const STOP_WORDS = new Set(['done', 'stop', 'finish', 'finished', "that's it", "that's all", 'cancel'])
@@ -117,16 +118,18 @@ export function VoiceTaskCapture({ boardId, onClose, onSaved }: VoiceTaskCapture
     if (!queue.length || saving) return
     setSaving(true)
     stopListening()
+    const created: Task[] = []
     for (const task of queue) {
-      await createTask({
+      const t = await createTask({
         name:     task.name,
         due_date: task.dueDate,
         details:  null,
         for_later: task.forLater,
         board_id:  boardId ?? null,
       })
+      created.push(t)
     }
-    onSaved()
+    onSaved(created)
     onClose()
   }
 

@@ -19,8 +19,7 @@ export async function updateSettings(data: {
 
   const { error } = await supabase
     .from('settings')
-    .upsert({ user_id: user.id, ...data })
-    .eq('user_id', user.id)
+    .upsert({ user_id: user.id, ...data }, { onConflict: 'user_id' })
   if (error) throw new Error(error.message)
   revalidatePath('/settings')
 }

@@ -12,6 +12,7 @@ interface BubbleCardProps {
   customColors?: CustomUrgencyColors
   isSpiky?: boolean
   completing?: boolean
+  scaleFactor?: number
 }
 
 function StarBurst({ diameter }: { diameter: number }) {
@@ -55,7 +56,7 @@ function pulseClass(level: string): string {
   return ''
 }
 
-export function BubbleCard({ task, onClick, onComplete, colorScheme = 'green_urgent', customColors, isSpiky, completing }: BubbleCardProps) {
+export function BubbleCard({ task, onClick, onComplete, colorScheme = 'green_urgent', customColors, isSpiky, completing, scaleFactor }: BubbleCardProps) {
   const urgency = useMemo(
     () => getUrgencyInfo({
       due_date: task.due_date,
@@ -67,7 +68,8 @@ export function BubbleCard({ task, onClick, onComplete, colorScheme = 'green_urg
     [task.due_date, task.for_later, task.created_at, colorScheme, customColors]
   )
 
-  const { diameter, color, borderColor, textColor, level } = urgency
+  const { diameter: rawDiameter, color, borderColor, textColor, level } = urgency
+  const diameter = Math.round(rawDiameter * (scaleFactor ?? 1))
   const isOverdue = level === 'overdue'
   const anim = completing ? 'bubble-completing' : pulseClass(level)
 

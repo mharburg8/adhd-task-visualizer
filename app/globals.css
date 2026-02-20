@@ -79,6 +79,42 @@
 
 .bubble-completing { animation: bubble-pop 0.4s ease-out forwards; }
 
+html[data-theme="dark"] {
+  --color-surface:    #0D1117;
+  --color-text:       #E6EDF3;
+  --color-text-muted: #8B949E;
+  --color-border:     #30363D;
+  color-scheme: dark;
+}
+
+html[data-theme="dark"] .bg-white {
+  background-color: #161B22 !important;
+}
+html[data-theme="dark"] .bg-gray-50 {
+  background-color: #0D1117 !important;
+}
+html[data-theme="dark"] .bg-gray-100 {
+  background-color: #21262D !important;
+}
+html[data-theme="dark"] .bg-red-50 {
+  background-color: #2D0A0A !important;
+}
+html[data-theme="dark"] .border-red-200 {
+  border-color: #7F1D1D !important;
+}
+html[data-theme="dark"] .text-gray-300 {
+  color: #C9D1D9 !important;
+}
+html[data-theme="dark"] .text-gray-500 {
+  color: #8B949E !important;
+}
+html[data-theme="dark"] .hover\:bg-gray-50:hover {
+  background-color: #21262D !important;
+}
+html[data-theme="dark"] .hover\:bg-gray-200:hover {
+  background-color: #30363D !important;
+}
+
 * { box-sizing: border-box; }
 body {
   background-color: var(--color-surface);

@@ -131,6 +131,7 @@ export function BoardClient({ initialTasks, initialSettings, boardId, boardName 
           onClose={() => setSelectedTask(undefined)}
           googleCalendarEnabled={initialSettings?.google_calendar_enabled ?? false}
           boardId={boardId ?? null}
+          onTaskCreated={task => { if (!task.for_later) setTasks(prev => [task, ...prev]) }}
         />
       )}
 
@@ -139,7 +140,11 @@ export function BoardClient({ initialTasks, initialSettings, boardId, boardName 
         <VoiceTaskCapture
           boardId={boardId}
           onClose={() => setVoiceOpen(false)}
-          onSaved={() => setVoiceOpen(false)}
+          onSaved={createdTasks => {
+            setVoiceOpen(false)
+            const boardTasks = createdTasks.filter(t => !t.for_later)
+            if (boardTasks.length > 0) setTasks(prev => [...boardTasks, ...prev])
+          }}
         />
       )}
     </div>

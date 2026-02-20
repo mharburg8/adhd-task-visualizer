@@ -24,18 +24,18 @@ const TIER_CONFIG_GREEN_URGENT: Record<UrgencyLevel, TierConfig> = {
   no_date:   { fill: '#B3E5FC', border: '#81D4FA', text: '#01579B', score: 0.10 },  // sky blue
 }
 
-// Flipped: electric/neon green = most urgent, dark green = safe
+// Electric green: green = most urgent, red = least urgent, orange/yellow same as default
 const TIER_CONFIG_ELECTRIC_GREEN: Record<UrgencyLevel, TierConfig> = {
-  overdue:   { fill: '#39FF14', border: '#00DD00', text: '#003300', score: 1.00 },  // neon green
+  overdue:   { fill: '#39FF14', border: '#00DD00', text: '#003300', score: 1.00 },  // neon green (most urgent)
   red_2:     { fill: '#00EE33', border: '#00BB22', text: '#002200', score: 0.90 },  // bright green
-  red_1:     { fill: '#00CC33', border: '#009922', text: '#002200', score: 0.80 },  // medium-bright green
-  orange_2:  { fill: '#00AA22', border: '#008818', text: '#CCFFCC', score: 0.70 },  // medium green
-  orange_1:  { fill: '#008818', border: '#006611', text: '#AAFFAA', score: 0.60 },  // medium-dark green
-  yellow_2:  { fill: '#006611', border: '#004A0C', text: '#88FF88', score: 0.50 },  // darker green
-  yellow_1:  { fill: '#004A0C', border: '#003308', text: '#77DD77', score: 0.40 },  // dark green
-  green_3:   { fill: '#003308', border: '#002205', text: '#66CC66', score: 0.30 },  // very dark green
-  green_2:   { fill: '#002205', border: '#001103', text: '#55BB55', score: 0.20 },  // near-black green
-  green_1:   { fill: '#001103', border: '#000A02', text: '#44AA44', score: 0.10 },  // darkest green
+  red_1:     { fill: '#33CC44', border: '#228833', text: '#EEFFEE', score: 0.80 },  // medium-bright green
+  orange_2:  { fill: '#CC4400', border: '#993300', text: '#FFFFFF', score: 0.70 },  // dark orange (same as default)
+  orange_1:  { fill: '#FF6600', border: '#CC4400', text: '#FFFFFF', score: 0.60 },  // orange (same as default)
+  yellow_2:  { fill: '#AA8800', border: '#886600', text: '#FFFFFF', score: 0.50 },  // dark yellow (same as default)
+  yellow_1:  { fill: '#FFEE55', border: '#CCBB00', text: '#3D3300', score: 0.40 },  // light yellow (same as default)
+  green_3:   { fill: '#5C0000', border: '#3D0000', text: '#FFB3B3', score: 0.30 },  // dark red (swapped from dark green)
+  green_2:   { fill: '#CC0000', border: '#990000', text: '#FFFFFF', score: 0.20 },  // medium red (swapped from light green)
+  green_1:   { fill: '#FF5555', border: '#CC2222', text: '#FFFFFF', score: 0.10 },  // light red (swapped from lighter green)
   for_later: { fill: '#CE93D8', border: '#AB47BC', text: '#4A148C', score: 0.00 },
   no_date:   { fill: '#B3E5FC', border: '#81D4FA', text: '#01579B', score: 0.10 },
 }
